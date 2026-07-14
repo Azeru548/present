@@ -1,0 +1,67 @@
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24px;
+  height: 64px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.logoLink {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: inherit;
+}
+
+.logoImg {
+  height: 36px;
+  width: auto;
+}
+
+.logoText {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #2E7D32;
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.greeting {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+.link {
+  color: #2E7D32;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.link:hover {
+  color: #1B5E20;
+}
+
+.btn {
+  background: #2E7D32;
+  color: #fff;
+  border: none;
+  padding: 7px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.btn:hover {
+  background: #1B5E20;
+}

@@ -1,0 +1,54 @@
+.hero {
+  text-align: center;
+  padding: 100px 16px 60px;
+}
+
+.logoHero {
+  height: 80px;
+  width: auto;
+  margin-bottom: 20px;
+}
+
+.title {
+  font-size: 2.75rem;
+  font-weight: 800;
+  color: #1a1a2e;
+  margin-bottom: 8px;
+  letter-spacing: -0.5px;
+}
+
+.accent {
+  color: #2E7D32;
+}
+
+.subtitle {
+  font-size: 1.1rem;
+  color: #6b7280;
+  margin-bottom: 44px;
+  line-height: 1.6;
+}
+
+.choices {
+  display: flex;
+  gap: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #2E7D32;
+  color: #fff;
+  padding: 14px 32px;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 1rem;
+  transition: background 0.2s, transform 0.15s;
+}
+.cta:hover {
+  background: #1B5E20;
+  transform: translateY(-1px);
+}

@@ -1,0 +1,59 @@
+.wrapper {
+  padding: 0;
+}
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.grid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.sessionCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: #f9fafb;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  border: 1px solid transparent;
+}
+.sessionCard:hover {
+  background: #f0fdf4;
+  border-color: #bbf7d0;
+}
+.active {
+  background: #f0fdf4;
+  border-color: #2E7D32;
+}
+.course {
+  display: block;
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+.badgeActive {
+  font-size: 0.75rem;
+  background: #dcfce7;
+  color: #166534;
+  padding: 3px 12px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+.badgeClosed {
+  font-size: 0.75rem;
+  background: #f3f4f6;
+  color: #6b7280;
+  padding: 3px 12px;
+  border-radius: 12px;
+}
+.muted {
+  color: #9ca3af;
+  font-style: italic;
+}

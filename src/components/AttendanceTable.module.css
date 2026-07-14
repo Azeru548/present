@@ -1,0 +1,30 @@
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+}
+.table th,
+.table td {
+  text-align: left;
+  padding: 12px 14px;
+  border-bottom: 1px solid #e5e7eb;
+}
+.table th {
+  background: #f9fafb;
+  color: #374151;
+  font-weight: 600;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.table td {
+  font-size: 0.9rem;
+  color: #1a1a2e;
+}
+.table tbody tr:hover {
+  background: #f9fafb;
+}
+.muted {
+  color: #9ca3af;
+  font-style: italic;
+}
