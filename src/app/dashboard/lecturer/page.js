@@ -55,25 +55,28 @@ export default function LecturerDashboard() {
 
   return (
     <div className={styles.wrapper}>
-      <div className={styles.header}>
-        <h1 className="page-title">Lecturer Dashboard</h1>
+      <div className={`${styles.header} animate-rise`}>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>
+          Lecturer Dashboard
+        </h1>
         <Link href="/dashboard/lecturer/create-session" className="btn-primary">
-          Create Session
+          + Create Session
         </Link>
       </div>
 
       {sessions.length === 0 ? (
-        <div className="card">
+        <div className="card animate-rise">
           <p className={styles.muted}>No sessions yet. Create your first one!</p>
         </div>
       ) : (
         <div className={styles.grid}>
-          <div className="card" style={{ flex: 1 }}>
+          <div className="card animate-rise" style={{ flex: 1 }}>
             <h2 className="subtitle">Your Sessions</h2>
-            {sessions.map((s) => (
+            {sessions.map((s, i) => (
               <div
                 key={s.id}
                 className={`${styles.sessionCard} ${selectedSession?.id === s.id ? styles.active : ''}`}
+                style={{ animationDelay: `${i * 70}ms` }}
                 onClick={() => viewAttendance(s)}
               >
                 <div>
@@ -87,9 +90,11 @@ export default function LecturerDashboard() {
             ))}
           </div>
 
-          <div className="card" style={{ flex: 2 }}>
+          <div className="card animate-rise" style={{ flex: 2 }}>
             <h2 className="subtitle">
-              {selectedSession ? `Attendance — ${selectedSession.title}` : 'Select a session'}
+              {selectedSession
+                ? `Attendance — ${selectedSession.title}`
+                : 'Select a session'}
             </h2>
 
             {selectedSession && selectedSession.isActive && (

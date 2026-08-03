@@ -28,11 +28,14 @@ export default function StudentRegister() {
 
   if (step === 'enroll') {
     return (
-      <div className="card" style={{ maxWidth: 500, margin: '40px auto' }}>
+      <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
+        <div className="auth-icon" aria-hidden="true">
+          😀
+        </div>
         <h1 className="page-title" style={{ textAlign: 'center' }}>
           Enroll Your Face
         </h1>
-        <p style={{ color: '#888', textAlign: 'center', marginBottom: 20 }}>
+        <p style={{ color: 'var(--ink-2)', textAlign: 'center', marginBottom: 20 }}>
           This helps verify your identity when marking attendance. You can
           re-enroll later from your dashboard if needed.
         </p>
@@ -41,7 +44,7 @@ export default function StudentRegister() {
           onComplete={() => setTimeout(() => router.push('/dashboard/student'), 1500)}
           onCancel={() => router.push('/dashboard/student')}
         />
-        <p style={{ marginTop: 16, fontSize: '0.85rem', textAlign: 'center' }}>
+        <p className="auth-footer">
           <Link href="/dashboard/student">Skip for now</Link>
         </p>
       </div>
@@ -49,27 +52,53 @@ export default function StudentRegister() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: 400, margin: '40px auto' }}>
+    <div className="card authCard animate-pop">
+      <div className="auth-icon" aria-hidden="true">
+        ✏️
+      </div>
       <h1 className="page-title">Student Registration</h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Full Name</label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} required />
+          <input
+            type="text"
+            placeholder="Jane Doe"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            required
+          />
         </div>
         <div className="form-group">
           <label>Email</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input
+            type="email"
+            placeholder="you@university.edu"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+          />
         </div>
         <div className="form-group">
           <label>Password</label>
-          <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
+          <input
+            type="password"
+            placeholder="At least 6 characters"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+          />
         </div>
         {error && <p className="error">{error}</p>}
-        <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: 8 }}>
+        <button
+          type="submit"
+          className="btn-primary"
+          style={{ width: '100%', marginTop: 8 }}
+        >
           Create Account
         </button>
       </form>
-      <p style={{ marginTop: 16, fontSize: '0.85rem', textAlign: 'center' }}>
+      <p className="auth-footer">
         Already have an account? <Link href="/login/student">Login here</Link>
       </p>
     </div>

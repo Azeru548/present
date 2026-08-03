@@ -7,6 +7,14 @@ import { getCurrentPosition, isWithinRange } from '@/lib/geo';
 import { authenticateFace } from '@/lib/face';
 import Loading from '@/components/Loading';
 
+const checkStyle = {
+  display: 'inline-flex',
+  alignItems: 'center',
+  gap: 8,
+  fontWeight: 600,
+  marginBottom: 6,
+};
+
 export default function SessionAttendance() {
   const { id } = useParams();
   const { user, role, loading: authLoading } = useAuth();
@@ -76,7 +84,7 @@ export default function SessionAttendance() {
   if (authLoading) return <Loading />;
 
   return (
-    <div className="card" style={{ maxWidth: 500, margin: '40px auto' }}>
+    <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
       {step === 'loading' && <Loading text="Loading session..." />}
 
       {step === 'error' && (
@@ -89,12 +97,19 @@ export default function SessionAttendance() {
       {session && step !== 'error' && (
         <>
           <h1 className="page-title">{session.title}</h1>
-          <p style={{ color: '#888', marginBottom: 20 }}>{session.course}</p>
+          <p style={{ color: 'var(--ink-2)', marginBottom: 24 }}>
+            {session.course}
+          </p>
 
           {step === 'geo' && (
             <>
-              <p style={{ marginBottom: 16 }}>
-                Step 1: Verify your location to confirm you are in class.
+              <p style={checkStyle}>
+                <span aria-hidden="true">📍</span>
+                Step 1 · Verify your location
+              </p>
+              <p style={{ marginBottom: 18, color: 'var(--ink-2)', fontSize: '0.92rem' }}>
+                Confirm you are within {session.location.radius}m of the class to
+                proceed.
               </p>
               {error && <p className="error">{error}</p>}
               <button className="btn-primary" onClick={handleGeoCheck}>
@@ -105,11 +120,16 @@ export default function SessionAttendance() {
 
           {step === 'face' && (
             <>
-              <p style={{ color: '#1b9e5a', marginBottom: 8 }}>
-                Location verified — {geoResult?.distance}m from class ✓
+              <p style={{ ...checkStyle, color: 'var(--brand-600)' }}>
+                <span aria-hidden="true">✅</span>
+                Location verified — {geoResult?.distance}m from class
               </p>
-              <p style={{ marginBottom: 16 }}>
-                Step 2: Facial verification to confirm your identity.
+              <p style={checkStyle}>
+                <span aria-hidden="true">😀</span>
+                Step 2 · Verify your face
+              </p>
+              <p style={{ marginBottom: 18, color: 'var(--ink-2)', fontSize: '0.92rem' }}>
+                Look at the camera to confirm your identity.
               </p>
               {error && <p className="error">{error}</p>}
               <button className="btn-success" onClick={handleFaceCheck}>
@@ -119,21 +139,43 @@ export default function SessionAttendance() {
           )}
 
           {step === 'done' && (
-            <>
-              <h2 style={{ color: '#1b9e5a', marginBottom: 12 }}>✓ Attendance Marked</h2>
-              {geoResult && <p>Location: {geoResult.distance}m from class</p>}
-              {faceResult && <p>Face verified successfully</p>}
-              <p style={{ color: '#888', marginTop: 16 }}>
+            <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
+              <div
+                style={{
+                  width: 76,
+                  height: 76,
+                  margin: '0 auto 18px',
+                  borderRadius: '50%',
+                  background: 'var(--brand-100)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2rem',
+                  animation: 'popIn 0.5s cubic-bezier(.4,0,.2,1)',
+                }}
+                aria-hidden="true"
+              >
+                🎉
+              </div>
+              <h2 style={{ color: 'var(--brand-600)', marginBottom: 10 }}>
+                Attendance Marked
+              </h2>
+              <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+                {geoResult && `Location: ${geoResult.distance}m from class`}
+                {geoResult && faceResult && ' · '}
+                {faceResult && 'Face verified successfully'}
+              </p>
+              <p style={{ color: 'var(--ink-3)', marginTop: 10, fontSize: '0.88rem' }}>
                 You have successfully marked attendance for this session.
               </p>
               <button
                 className="btn-primary"
-                style={{ marginTop: 16 }}
+                style={{ marginTop: 20 }}
                 onClick={() => router.push('/dashboard/student')}
               >
                 Back to Sessions
               </button>
-            </>
+            </div>
           )}
         </>
       )}

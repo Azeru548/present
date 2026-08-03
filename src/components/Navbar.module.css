@@ -4,8 +4,10 @@
   justify-content: space-between;
   padding: 0 24px;
   height: 64px;
-  background: #ffffff;
-  border-bottom: 1px solid #e5e7eb;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
   position: sticky;
   top: 0;
   z-index: 50;
@@ -17,53 +19,92 @@
   gap: 10px;
   text-decoration: none;
   color: inherit;
+  transition: opacity 0.2s var(--ease);
+}
+.logoLink:hover {
+  opacity: 0.85;
 }
 
 .logoImg {
-  height: 36px;
+  height: 34px;
   width: auto;
 }
 
 .logoText {
   font-size: 1.15rem;
-  font-weight: 700;
-  color: #2E7D32;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  background: linear-gradient(135deg, var(--brand-700), var(--brand-500));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .links {
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 18px;
 }
 
 .greeting {
   font-size: 0.85rem;
-  color: #6b7280;
+  color: var(--ink-2);
+  font-weight: 500;
+}
+.greeting b {
+  color: var(--ink);
+  font-weight: 700;
 }
 
 .link {
-  color: #2E7D32;
+  position: relative;
+  color: var(--ink-2);
   text-decoration: none;
   font-size: 0.9rem;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 6px 2px;
+  transition: color 0.2s var(--ease);
+}
+.link::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, var(--brand-500), var(--brand-300));
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.25s var(--ease);
 }
 .link:hover {
-  color: #1B5E20;
+  color: var(--brand-600);
+}
+.link:hover::after {
+  transform: scaleX(1);
 }
 
 .btn {
-  background: #2E7D32;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
   color: #fff;
   border: none;
-  padding: 7px 16px;
-  border-radius: 6px;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
   cursor: pointer;
   font-size: 0.85rem;
-  font-weight: 500;
-  transition: background 0.2s;
+  font-weight: 600;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s var(--ease), box-shadow 0.2s var(--ease),
+    filter 0.2s var(--ease);
 }
 .btn:hover {
-  background: #1B5E20;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-brand);
+  filter: brightness(1.05);
+}
+.btn:active {
+  transform: translateY(0) scale(0.96);
 }
 
 @media (max-width: 640px) {
@@ -72,7 +113,7 @@
     height: 56px;
   }
   .logoImg {
-    height: 30px;
+    height: 28px;
   }
   .logoText {
     font-size: 1rem;
@@ -87,7 +128,7 @@
     font-size: 0.85rem;
   }
   .btn {
-    padding: 6px 12px;
+    padding: 7px 14px;
     font-size: 0.8rem;
   }
 }

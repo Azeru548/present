@@ -51,7 +51,7 @@ export default function StudentDashboard() {
 
   return (
     <div>
-      <div className="card">
+      <div className="card animate-rise">
         <div
           style={{
             display: 'flex',
@@ -61,13 +61,32 @@ export default function StudentDashboard() {
             gap: 12,
           }}
         >
-          <div>
-            <h2 className="subtitle">Face Enrollment</h2>
-            <p style={{ color: '#888', fontSize: '0.9rem' }}>
-              {enrolled
-                ? 'Your face is enrolled. You can update it anytime.'
-                : 'Your face is not enrolled yet. Enroll now to mark attendance.'}
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <span
+              style={{
+                fontSize: '1.8rem',
+                width: 52,
+                height: 52,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                borderRadius: 14,
+                background: 'linear-gradient(135deg, var(--brand-100), var(--brand-200))',
+              }}
+              aria-hidden="true"
+            >
+              {enrolled ? '✅' : '🙋'}
+            </span>
+            <div>
+              <h2 className="subtitle" style={{ marginBottom: 2 }}>
+                Face Enrollment
+              </h2>
+              <p style={{ color: 'var(--ink-2)', fontSize: '0.9rem' }}>
+                {enrolled
+                  ? 'Your face is enrolled. You can update it anytime.'
+                  : 'Your face is not enrolled yet. Enroll now to mark attendance.'}
+              </p>
+            </div>
           </div>
           <button
             className={enrolled ? 'btn-primary' : 'btn-success'}
@@ -77,7 +96,7 @@ export default function StudentDashboard() {
           </button>
         </div>
         {showEnroll && (
-          <div style={{ marginTop: 16 }}>
+          <div style={{ marginTop: 20 }} className="animate-pop">
             <FaceEnrollment
               userId={user.uid}
               onComplete={() => {
@@ -90,30 +109,42 @@ export default function StudentDashboard() {
         )}
       </div>
 
-      <h1 className="page-title">Live Sessions</h1>
+      <h1 className="page-title" style={{ marginTop: 8 }}>
+        Live Sessions
+      </h1>
       {sessions.length === 0 ? (
-        <div className="card">
-          <p style={{ color: '#888' }}>No active sessions right now.</p>
+        <div className="card animate-rise">
+          <p style={{ color: 'var(--ink-2)' }}>
+            No active sessions right now. Check back soon!
+          </p>
         </div>
       ) : (
         <div className={styles.list}>
-          {sessions.map((s) => {
+          {sessions.map((s, i) => {
             const dist = distanceTo(s);
             return (
               <Link
                 key={s.id}
                 href={`/dashboard/student/session/${s.id}`}
                 className={styles.sessionCard}
+                style={{ animationDelay: `${i * 70}ms` }}
               >
                 <div>
                   <strong>{s.title}</strong>
                   <span className={styles.course}>{s.course}</span>
                 </div>
-                <span className={styles.distance}>
-                  {dist !== null
-                    ? `${Math.round(dist)}m away`
-                    : 'Location unavailable'}
-                </span>
+                <div className={styles.meta}>
+                  <span className={styles.liveDot}>Live</span>
+                  <span
+                    className={
+                      dist !== null ? styles.distance : styles.distanceUnavailable
+                    }
+                  >
+                    {dist !== null
+                      ? `${Math.round(dist)}m away`
+                      : 'Location unavailable'}
+                  </span>
+                </div>
               </Link>
             );
           })}

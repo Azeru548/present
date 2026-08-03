@@ -52,28 +52,60 @@ export default function CreateSession() {
   }
 
   return (
-    <div className="card" style={{ maxWidth: 500, margin: '0 auto' }}>
-      <h1 className="page-title">Create Lecture Session</h1>
+    <div className="card animate-pop" style={{ maxWidth: 520, margin: '0 auto' }}>
+      <div className="auth-icon" aria-hidden="true">
+        🗓️
+      </div>
+      <h1 className="page-title" style={{ textAlign: 'center' }}>
+        Create Lecture Session
+      </h1>
       <form onSubmit={handleSubmit}>
         <div className="form-group">
           <label>Lecture Title</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} required />
+          <input
+            placeholder="e.g. Data Structures & Algorithms"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            required
+          />
         </div>
         <div className="form-group">
-          <label>Course Code/Name</label>
-          <input value={course} onChange={(e) => setCourse(e.target.value)} required />
+          <label>Course Code / Name</label>
+          <input
+            placeholder="e.g. CS301"
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
+            required
+          />
         </div>
         <div className="form-group">
           <label>Geo-Radius (meters) — default 50m</label>
-          <input type="number" value={radius} onChange={(e) => setRadius(e.target.value)} min={10} required />
+          <input
+            type="number"
+            value={radius}
+            onChange={(e) => setRadius(e.target.value)}
+            min={10}
+            required
+          />
         </div>
         <div className="form-group">
           <label>Attendance Duration (minutes)</label>
-          <input type="number" value={duration} onChange={(e) => setDuration(e.target.value)} min={5} required />
+          <input
+            type="number"
+            value={duration}
+            onChange={(e) => setDuration(e.target.value)}
+            min={5}
+            required
+          />
         </div>
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}
-        <button type="submit" className="btn-primary" disabled={submitting} style={{ width: '100%', marginTop: 8 }}>
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={submitting}
+          style={{ width: '100%', marginTop: 8 }}
+        >
           {submitting ? 'Creating...' : 'Create Session'}
         </button>
       </form>

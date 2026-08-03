@@ -1,36 +1,79 @@
 .hero {
+  position: relative;
   text-align: center;
-  padding: 100px 16px 60px;
+  padding: 96px 16px 72px;
+  overflow: hidden;
+  margin: -32px -16px 0;
+}
+
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(70px);
+  opacity: 0.5;
+  z-index: 0;
+  animation: floatBlob 9s ease-in-out infinite;
+}
+.blob1 {
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, var(--brand-300), transparent 70%);
+  top: 8%;
+  left: -6%;
+}
+.blob2 {
+  width: 280px;
+  height: 280px;
+  background: radial-gradient(circle, rgba(56, 189, 248, 0.4), transparent 70%);
+  top: 30%;
+  right: -8%;
+  animation-delay: 2.5s;
+}
+
+.inner {
+  position: relative;
+  z-index: 1;
 }
 
 .logoHero {
-  height: 80px;
+  height: 88px;
   width: auto;
-  margin-bottom: 20px;
+  margin-bottom: 22px;
+  filter: drop-shadow(0 12px 24px rgba(16, 185, 129, 0.3));
+  animation: popIn 0.6s var(--ease);
 }
 
 .title {
-  font-size: 2.75rem;
+  font-size: 3rem;
   font-weight: 800;
-  color: #1a1a2e;
-  margin-bottom: 8px;
-  letter-spacing: -0.5px;
+  color: var(--ink);
+  margin-bottom: 12px;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
 }
 
 .accent {
-  color: #2E7D32;
+  background: linear-gradient(120deg, var(--brand-700), var(--brand-400));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-size: 200% auto;
+  animation: shimmer 6s linear infinite;
 }
 
 .subtitle {
-  font-size: 1.1rem;
-  color: #6b7280;
-  margin-bottom: 44px;
+  font-size: 1.12rem;
+  color: var(--ink-2);
+  margin-bottom: 40px;
   line-height: 1.6;
+  max-width: 520px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .choices {
   display: flex;
-  gap: 16px;
+  gap: 14px;
   justify-content: center;
   flex-wrap: wrap;
 }
@@ -38,30 +81,74 @@
 .cta {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: #2E7D32;
+  justify-content: center;
+  gap: 9px;
+  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
   color: #fff;
-  padding: 14px 32px;
-  border-radius: 8px;
+  padding: 14px 30px;
+  border-radius: var(--radius-full);
   text-decoration: none;
   font-weight: 600;
   font-size: 1rem;
-  transition: background 0.2s, transform 0.15s;
+  box-shadow: var(--shadow-brand);
+  transition: transform 0.18s var(--ease), box-shadow 0.22s var(--ease),
+    filter 0.22s var(--ease);
 }
 .cta:hover {
-  background: #1B5E20;
-  transform: translateY(-1px);
+  color: #fff;
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(16, 185, 129, 0.4);
+  filter: brightness(1.05);
+}
+.cta:active {
+  transform: translateY(-1px) scale(0.98);
+}
+.ctaOutline {
+  background: #fff;
+  color: var(--ink);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-sm);
+}
+.ctaOutline:hover {
+  color: var(--ink);
+  border-color: var(--brand-300);
+  box-shadow: var(--shadow-md);
+  filter: none;
+}
+.ctaOutline span {
+  color: var(--brand-600);
+}
+
+.taglineWrap {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 44px;
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  font-weight: 500;
+}
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand-400);
+  animation: floatBlob 2.2s ease-in-out infinite;
 }
 
 @media (max-width: 640px) {
   .hero {
-    padding: 56px 16px 40px;
-  }
-  .logoHero {
-    height: 60px;
+    padding: 64px 16px 48px;
+    margin-bottom: -20px;
   }
   .title {
-    font-size: 2rem;
+    font-size: 2.15rem;
+  }
+  .logoHero {
+    height: 68px;
   }
   .subtitle {
     font-size: 1rem;
@@ -73,6 +160,5 @@
   }
   .cta {
     width: 100%;
-    justify-content: center;
   }
 }

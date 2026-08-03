@@ -1,36 +1,84 @@
 .scrollWrap {
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
 }
 
 .table {
   width: 100%;
-  min-width: 560px;
+  min-width: 620px;
   border-collapse: collapse;
-  margin-top: 16px;
+  background: var(--surface);
 }
 .table th,
 .table td {
   text-align: left;
-  padding: 12px 14px;
-  border-bottom: 1px solid #e5e7eb;
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
 }
 .table th {
-  background: #f9fafb;
-  color: #374151;
-  font-weight: 600;
-  font-size: 0.8rem;
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-weight: 700;
+  font-size: 0.72rem;
   text-transform: uppercase;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.06em;
 }
 .table td {
   font-size: 0.9rem;
-  color: #1a1a2e;
+  color: var(--ink);
+}
+.table tbody tr {
+  transition: background 0.15s var(--ease);
 }
 .table tbody tr:hover {
-  background: #f9fafb;
+  background: var(--brand-50);
 }
+.table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.row td:first-child {
+  color: var(--ink-3);
+  font-weight: 600;
+}
+
+.pillYes,
+.pillNo {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+.pillYes {
+  background: var(--brand-100);
+  color: var(--brand-700);
+}
+.pillYes::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-500);
+}
+.pillNo {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+.pillNo::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ef4444;
+}
+
 .muted {
-  color: #9ca3af;
+  color: var(--ink-3);
   font-style: italic;
 }

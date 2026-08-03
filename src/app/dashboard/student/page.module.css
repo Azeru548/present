@@ -1,35 +1,119 @@
 .list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
 }
+
 .sessionCard {
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 8px;
-  padding: 16px 20px;
-  background: #ffffff;
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
+  gap: 10px;
+  padding: 18px 22px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   text-decoration: none;
-  color: #1a1a2e;
-  transition: border-color 0.15s, box-shadow 0.15s;
-  box-shadow: 0 1px 2px rgba(0,0,0,0.03);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.18s var(--ease), box-shadow 0.22s var(--ease),
+    border-color 0.22s var(--ease);
+  opacity: 0;
+  animation: riseIn 0.5s var(--ease) forwards;
+}
+.sessionCard::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: linear-gradient(180deg, var(--brand-400), var(--brand-600));
+  opacity: 0;
+  transition: opacity 0.22s var(--ease);
 }
 .sessionCard:hover {
-  border-color: #2E7D32;
-  box-shadow: 0 2px 8px rgba(46,125,50,0.08);
+  transform: translateY(-3px);
+  border-color: var(--brand-300);
+  box-shadow: var(--shadow-md);
 }
+.sessionCard:hover::before {
+  opacity: 1;
+}
+.sessionCard:active {
+  transform: translateY(-1px) scale(0.99);
+}
+
 .course {
   display: block;
   font-size: 0.8rem;
-  color: #6b7280;
-  margin-top: 2px;
+  color: var(--ink-2);
+  margin-top: 3px;
+  font-weight: 500;
 }
+
+.meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
 .distance {
   font-size: 0.85rem;
-  color: #2E7D32;
-  font-weight: 500;
+  color: var(--brand-600);
+  font-weight: 600;
+  background: var(--brand-50);
+  border: 1px solid var(--brand-200);
+  padding: 4px 12px;
+  border-radius: var(--radius-full);
+}
+.distanceUnavailable {
+  font-size: 0.8rem;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+.liveDot {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand-600);
+}
+.liveDot::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--brand-500);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5);
+  animation: pulseRing 1.8s ease-out infinite;
+}
+
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.45);
+  }
+  70% {
+    box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+  }
+}
+
+@media (max-width: 640px) {
+  .sessionCard {
+    padding: 14px 16px;
+  }
+  .meta {
+    align-items: flex-start;
+  }
 }
