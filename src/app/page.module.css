@@ -52,3 +52,27 @@
   background: #1B5E20;
   transform: translateY(-1px);
 }
+
+@media (max-width: 640px) {
+  .hero {
+    padding: 56px 16px 40px;
+  }
+  .logoHero {
+    height: 60px;
+  }
+  .title {
+    font-size: 2rem;
+  }
+  .subtitle {
+    font-size: 1rem;
+    margin-bottom: 32px;
+  }
+  .choices {
+    flex-direction: column;
+    width: 100%;
+  }
+  .cta {
+    width: 100%;
+    justify-content: center;
+  }
+}

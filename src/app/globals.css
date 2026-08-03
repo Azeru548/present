@@ -147,3 +147,21 @@ input, select, textarea {
   display: block;
   margin: 0 auto 16px;
 }
+
+@media (max-width: 640px) {
+  .container {
+    padding: 20px 12px;
+  }
+  .card {
+    padding: 20px 16px;
+  }
+  .page-title {
+    font-size: 1.3rem;
+    margin-bottom: 16px;
+  }
+  .btn-primary,
+  .btn-danger,
+  .btn-success {
+    width: 100%;
+  }
+}

@@ -1,10 +1,10 @@
 import { db } from './firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const MODELS_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
 let loaded = false;
 
-async function loadModels() {
+export async function loadModels() {
   if (loaded) return;
   if (typeof window === 'undefined' || !window.faceapi) {
     throw new Error(
@@ -19,46 +19,33 @@ async function loadModels() {
   loaded = true;
 }
 
-async function getVideo() {
-  const video = document.createElement('video');
-  video.setAttribute('autoplay', '');
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
-  video.width = 640;
-  video.height = 480;
+export async function startCamera(videoEl) {
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-  video.srcObject = stream;
-  await new Promise((r) => (video.onloadedmetadata = r));
-  video.play();
-  return { video, stream };
+  videoEl.srcObject = stream;
+  await new Promise((r) => (videoEl.onloadedmetadata = r));
+  await videoEl.play();
+  return stream;
 }
 
-function stopVideo(video) {
-  if (video?.srcObject) {
-    video.srcObject.getTracks().forEach((t) => t.stop());
-  }
+export function stopCamera(stream) {
+  stream?.getTracks().forEach((t) => t.stop());
 }
 
-export async function enrollFace(userId) {
-  await loadModels();
-  const { video, stream } = await getVideo();
+export async function detectFace(video) {
+  const detections = await window.faceapi
+    .detectSingleFace(video)
+    .withFaceLandmarks()
+    .withFaceDescriptor();
+  if (!detections) throw new Error('No face detected. Ensure good lighting.');
+  return detections;
+}
 
-  try {
-    const detections = await window.faceapi
-      .detectSingleFace(video)
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-
-    if (!detections) throw new Error('No face detected. Ensure good lighting.');
-
-    const descriptor = Array.from(detections.descriptor);
-    await setDoc(doc(db, 'face_descriptors', userId), {
-      descriptor,
-      createdAt: new Date().toISOString(),
-    });
-  } finally {
-    stopVideo(video);
-  }
+export async function saveEnrollment(userId, descriptor) {
+  await setDoc(doc(db, 'face_descriptors', userId), {
+    descriptor,
+    createdAt: new Date().toISOString(),
+  });
+  await updateDoc(doc(db, 'users', userId), { faceEnrolled: true });
 }
 
 export async function authenticateFace(userId) {
@@ -89,5 +76,25 @@ export async function authenticateFace(userId) {
     }
   } finally {
     stopVideo(video);
+  }
+}
+
+async function getVideo() {
+  const video = document.createElement('video');
+  video.setAttribute('autoplay', '');
+  video.setAttribute('muted', '');
+  video.setAttribute('playsinline', '');
+  video.width = 640;
+  video.height = 480;
+  const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+  video.srcObject = stream;
+  await new Promise((r) => (video.onloadedmetadata = r));
+  video.play();
+  return { video, stream };
+}
+
+function stopVideo(video) {
+  if (video?.srcObject) {
+    video.srcObject.getTracks().forEach((t) => t.stop());
   }
 }

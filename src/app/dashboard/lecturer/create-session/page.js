@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createSession } from '@/lib/firestore';
 import { getCurrentPosition } from '@/lib/geo';
+import Loading from '@/components/Loading';
 
 export default function CreateSession() {
   const { user, role, loading: authLoading } = useAuth();
@@ -16,7 +17,7 @@ export default function CreateSession() {
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  if (authLoading) return <p>Loading...</p>;
+  if (authLoading) return <Loading />;
   if (!user || role !== 'lecturer') {
     router.push('/login/lecturer');
     return null;

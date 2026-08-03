@@ -5,6 +5,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
   margin-bottom: 8px;
 }
 .grid {
@@ -56,4 +58,11 @@
 .muted {
   color: #9ca3af;
   font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .grid {
+    flex-direction: column;
+    gap: 12px;
+  }
 }

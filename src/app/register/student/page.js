@@ -3,30 +3,49 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
-import { enrollFace } from '@/lib/face';
+import FaceEnrollment from '@/components/FaceEnrollment';
 
 export default function StudentRegister() {
+  const [step, setStep] = useState('form'); // form | enroll
+  const [userId, setUserId] = useState(null);
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
-  const [faceStatus, setFaceStatus] = useState('');
   const router = useRouter();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
-    setFaceStatus('');
     try {
       const user = await registerWithRole(email, password, name, 'student');
-      setFaceStatus('Enrolling your face...');
-      await enrollFace(user.uid);
-      setFaceStatus('Face enrolled successfully!');
-      setTimeout(() => router.push('/dashboard/student'), 1500);
+      setUserId(user.uid);
+      setStep('enroll');
     } catch (err) {
       setError(err.message);
-      setFaceStatus('');
     }
+  }
+
+  if (step === 'enroll') {
+    return (
+      <div className="card" style={{ maxWidth: 500, margin: '40px auto' }}>
+        <h1 className="page-title" style={{ textAlign: 'center' }}>
+          Enroll Your Face
+        </h1>
+        <p style={{ color: '#888', textAlign: 'center', marginBottom: 20 }}>
+          This helps verify your identity when marking attendance. You can
+          re-enroll later from your dashboard if needed.
+        </p>
+        <FaceEnrollment
+          userId={userId}
+          onComplete={() => setTimeout(() => router.push('/dashboard/student'), 1500)}
+          onCancel={() => router.push('/dashboard/student')}
+        />
+        <p style={{ marginTop: 16, fontSize: '0.85rem', textAlign: 'center' }}>
+          <Link href="/dashboard/student">Skip for now</Link>
+        </p>
+      </div>
+    );
   }
 
   return (
@@ -46,9 +65,8 @@ export default function StudentRegister() {
           <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6} />
         </div>
         {error && <p className="error">{error}</p>}
-        {faceStatus && <p className={faceStatus.includes('success') ? 'success' : ''} style={{ marginTop: 8 }}>{faceStatus}</p>}
         <button type="submit" className="btn-primary" style={{ width: '100%', marginTop: 8 }}>
-          Register & Enroll Face
+          Create Account
         </button>
       </form>
       <p style={{ marginTop: 16, fontSize: '0.85rem', textAlign: 'center' }}>

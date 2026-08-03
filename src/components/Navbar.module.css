@@ -65,3 +65,29 @@
 .btn:hover {
   background: #1B5E20;
 }
+
+@media (max-width: 640px) {
+  .nav {
+    padding: 0 12px;
+    height: 56px;
+  }
+  .logoImg {
+    height: 30px;
+  }
+  .logoText {
+    font-size: 1rem;
+  }
+  .links {
+    gap: 12px;
+  }
+  .greeting {
+    display: none;
+  }
+  .link {
+    font-size: 0.85rem;
+  }
+  .btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}

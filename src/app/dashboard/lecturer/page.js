@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { getLecturerSessions, closeSession } from '@/lib/firestore';
 import AttendanceTable from '@/components/AttendanceTable';
+import Loading from '@/components/Loading';
 import styles from './page.module.css';
 
 export default function LecturerDashboard() {
@@ -50,7 +51,7 @@ export default function LecturerDashboard() {
     setAttLoading(false);
   }
 
-  if (authLoading || loading) return <p>Loading...</p>;
+  if (authLoading || loading) return <Loading />;
 
   return (
     <div className={styles.wrapper}>

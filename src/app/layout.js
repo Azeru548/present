@@ -7,6 +7,11 @@ export const metadata = {
   description: 'Geo + Face verified attendance management',
 };
 
+export const viewport = {
+  width: 'device-width',
+  initialScale: 1,
+};
+
 export default function RootLayout({ children }) {
   return (
     <html lang="en">

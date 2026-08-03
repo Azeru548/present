@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore';
 import { getCurrentPosition, isWithinRange } from '@/lib/geo';
 import { authenticateFace } from '@/lib/face';
+import Loading from '@/components/Loading';
 
 export default function SessionAttendance() {
   const { id } = useParams();
@@ -72,11 +73,11 @@ export default function SessionAttendance() {
     }
   }
 
-  if (authLoading) return <p>Loading...</p>;
+  if (authLoading) return <Loading />;
 
   return (
     <div className="card" style={{ maxWidth: 500, margin: '40px auto' }}>
-      {step === 'loading' && <p>Loading session...</p>}
+      {step === 'loading' && <Loading text="Loading session..." />}
 
       {step === 'error' && (
         <>
