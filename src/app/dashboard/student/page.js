@@ -50,7 +50,7 @@ export default function StudentDashboard() {
   if (authLoading || loading) return <Loading text="Loading sessions..." />;
 
   return (
-    <div>
+    <div className="container">
       <div className="card animate-rise">
         <div
           style={{

@@ -84,7 +84,8 @@ export default function SessionAttendance() {
   if (authLoading) return <Loading />;
 
   return (
-    <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
+    <div className="container">
+      <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
       {step === 'loading' && <Loading text="Loading session..." />}
 
       {step === 'error' && (
@@ -179,6 +180,7 @@ export default function SessionAttendance() {
           )}
         </>
       )}
+      </div>
     </div>
   );
 }

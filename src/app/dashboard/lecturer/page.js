@@ -54,8 +54,9 @@ export default function LecturerDashboard() {
   if (authLoading || loading) return <Loading />;
 
   return (
-    <div className={styles.wrapper}>
-      <div className={`${styles.header} animate-rise`}>
+    <div className="container">
+      <div className={styles.wrapper}>
+        <div className={`${styles.header} animate-rise`}>
         <h1 className="page-title" style={{ marginBottom: 0 }}>
           Lecturer Dashboard
         </h1>
@@ -115,6 +116,7 @@ export default function LecturerDashboard() {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 }

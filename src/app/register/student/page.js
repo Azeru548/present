@@ -28,7 +28,8 @@ export default function StudentRegister() {
 
   if (step === 'enroll') {
     return (
-      <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
+      <div className="container">
+        <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
         <div className="auth-icon" aria-hidden="true">
           😀
         </div>
@@ -47,12 +48,14 @@ export default function StudentRegister() {
         <p className="auth-footer">
           <Link href="/dashboard/student">Skip for now</Link>
         </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="card authCard animate-pop">
+    <div className="container">
+      <div className="card authCard animate-pop">
       <div className="auth-icon" aria-hidden="true">
         ✏️
       </div>
@@ -101,6 +104,7 @@ export default function StudentRegister() {
       <p className="auth-footer">
         Already have an account? <Link href="/login/student">Login here</Link>
       </p>
+      </div>
     </div>
   );
 }

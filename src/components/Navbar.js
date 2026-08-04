@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -8,28 +9,48 @@ import styles from './Navbar.module.css';
 export default function Navbar() {
   const { user, role, userData } = useAuth();
   const router = useRouter();
+  const [open, setOpen] = useState(false);
 
   async function handleLogout() {
     await logout();
     router.push('/');
   }
 
+  function closeMenu() {
+    setOpen(false);
+  }
+
+  const dashboardHref =
+    role === 'lecturer' ? '/dashboard/lecturer' : '/dashboard/student';
+
   return (
     <nav className={styles.nav}>
-      <Link href="/" className={styles.logoLink}>
+      <Link href="/" className={styles.logoLink} onClick={closeMenu}>
         <img src="/logopresent.png" alt="Present" className={styles.logoImg} />
         <span className={styles.logoText}>Present</span>
       </Link>
-      <div className={styles.links}>
+
+      <div
+        id="site-menu"
+        className={`${styles.links} ${open ? styles.linksOpen : ''}`}
+      >
+        {!user && (
+          <>
+            <Link href="/#features" className={styles.link} onClick={closeMenu}>
+              Features
+            </Link>
+            <Link href="/#how-it-works" className={styles.link} onClick={closeMenu}>
+              How it works
+            </Link>
+          </>
+        )}
+
         {user ? (
           <>
             <span className={styles.greeting}>
-              {userData?.name} ({role})
+              {userData?.name} <b>({role})</b>
             </span>
-            <Link
-              href={role === 'lecturer' ? '/dashboard/lecturer' : '/dashboard/student'}
-              className={styles.link}
-            >
+            <Link href={dashboardHref} className={styles.link} onClick={closeMenu}>
               Dashboard
             </Link>
             <button onClick={handleLogout} className={styles.btn}>
@@ -38,11 +59,31 @@ export default function Navbar() {
           </>
         ) : (
           <>
-            <Link href="/login/lecturer" className={styles.link}>Lecturer</Link>
-            <Link href="/login/student" className={styles.link}>Student</Link>
+            <Link href="/login/student" className={styles.link} onClick={closeMenu}>
+              Login
+            </Link>
+            <Link
+              href="/register/student"
+              className={`${styles.btn} ${styles.btnCta}`}
+              onClick={closeMenu}
+            >
+              Get Started
+            </Link>
           </>
         )}
       </div>
+
+      <button
+        className={`${styles.hamburger} ${open ? styles.hamburgerOpen : ''}`}
+        onClick={() => setOpen((v) => !v)}
+        aria-label="Toggle navigation menu"
+        aria-expanded={open}
+        aria-controls="site-menu"
+      >
+        <span className={styles.bar} />
+        <span className={styles.bar} />
+        <span className={styles.bar} />
+      </button>
     </nav>
   );
 }

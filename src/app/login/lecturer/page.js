@@ -27,7 +27,8 @@ export default function LecturerLogin() {
   }
 
   return (
-    <div className="card authCard animate-pop">
+    <div className="container">
+      <div className="card authCard animate-pop">
       <div className="auth-icon" aria-hidden="true">
         🎓
       </div>
@@ -84,6 +85,7 @@ export default function LecturerLogin() {
       <p className="auth-footer">
         No account? <Link href="/register/lecturer">Register here</Link>
       </p>
+      </div>
     </div>
   );
 }

@@ -49,10 +49,18 @@ body {
   min-height: 100vh;
   line-height: 1.5;
   background:
-    radial-gradient(900px 460px at 8% -6%, rgba(16, 185, 129, 0.14), transparent 60%),
-    radial-gradient(780px 420px at 104% 4%, rgba(56, 189, 248, 0.12), transparent 55%),
-    linear-gradient(180deg, #f7faf9 0%, #eef4f1 100%);
-  background-attachment: fixed;
+    radial-gradient(900px 460px at 8% -6%, rgba(16, 185, 129, 0.12), transparent 60%),
+    radial-gradient(780px 420px at 104% 4%, rgba(56, 189, 248, 0.1), transparent 55%),
+    linear-gradient(180deg, #f8faf9 0%, #eef4f1 100%);
+}
+
+::selection {
+  background: var(--brand-200);
+  color: var(--brand-800);
+}
+
+section[id] {
+  scroll-margin-top: 80px;
 }
 
 a {

@@ -1,10 +1,12 @@
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
+import Footer from '@/components/Footer';
 
 export const metadata = {
-  title: 'Attendance System',
-  description: 'Geo + Face verified attendance management',
+  title: 'Present — Attendance, verified',
+  description:
+    'Geo-location and facial recognition verified attendance for classrooms. No proxies, no buddy check-ins, no paperwork.',
 };
 
 export const viewport = {
@@ -24,8 +26,9 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <Navbar />
-          <main className="container">{children}</main>
+          <main>{children}</main>
         </AuthProvider>
+        <Footer />
       </body>
     </html>
   );

@@ -52,7 +52,8 @@ export default function CreateSession() {
   }
 
   return (
-    <div className="card animate-pop" style={{ maxWidth: 520, margin: '0 auto' }}>
+    <div className="container">
+      <div className="card animate-pop" style={{ maxWidth: 520, margin: '0 auto' }}>
       <div className="auth-icon" aria-hidden="true">
         🗓️
       </div>
@@ -109,6 +110,7 @@ export default function CreateSession() {
           {submitting ? 'Creating...' : 'Create Session'}
         </button>
       </form>
+      </div>
     </div>
   );
 }
