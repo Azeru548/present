@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createSession } from '@/lib/firestore';
 import { getCurrentPosition } from '@/lib/geo';
+import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 
 export default function CreateSession() {
@@ -12,6 +13,9 @@ export default function CreateSession() {
   const [course, setCourse] = useState('');
   const [radius, setRadius] = useState(50);
   const [duration, setDuration] = useState(60);
+  const [level, setLevel] = useState('');
+  const [department, setDepartment] = useState('');
+  const [locationNote, setLocationNote] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
@@ -37,6 +41,9 @@ export default function CreateSession() {
         title: title.trim(),
         course: course.trim(),
         lecturerId: user.uid,
+        level: level || null,
+        department: department || null,
+        locationNote: locationNote.trim() || null,
         location: { lat: pos.lat, lng: pos.lng, radius: Number(radius) },
         durationMinutes: Number(duration),
         endTime,
@@ -98,6 +105,43 @@ export default function CreateSession() {
             min={5}
             required
           />
+        </div>
+        <div className="form-group">
+          <label>Class Location (optional — shown to students)</label>
+          <input
+            type="text"
+            placeholder="e.g. Block B, Room 204, Engineering Building"
+            value={locationNote}
+            onChange={(e) => setLocationNote(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label>Level (optional — All levels if blank)</label>
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+          >
+            <option value="">All Levels</option>
+            {LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Department (optional — All departments if blank)</label>
+          <select
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+          >
+            <option value="">All Departments</option>
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
         </div>
         {error && <p className="error">{error}</p>}
         {success && <p className="success">{success}</p>}

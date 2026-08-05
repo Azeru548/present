@@ -3,20 +3,31 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
-import { getActiveSessions } from '@/lib/firestore';
-import { getCurrentPosition, getDistance } from '@/lib/geo';
+import { updateUserProfile } from '@/lib/auth';
+import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 import FaceEnrollment from '@/components/FaceEnrollment';
 import styles from './page.module.css';
 
 export default function StudentDashboard() {
-  const { user, role, userData, loading: authLoading } = useAuth();
-  const [sessions, setSessions] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [studentPos, setStudentPos] = useState(null);
+  const { user, role, userData, refreshUserData, loading: authLoading } = useAuth();
+  const [enrolled, setEnrolled] = useState(false);
   const [showEnroll, setShowEnroll] = useState(false);
-  const [enrolled, setEnrolled] = useState(userData?.faceEnrolled === true);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const [level, setLevel] = useState('');
+  const [department, setDepartment] = useState('');
+  const [profileSaving, setProfileSaving] = useState(false);
+  const [profileMsg, setProfileMsg] = useState('');
   const router = useRouter();
+
+  useEffect(() => {
+    setEnrolled(userData?.faceEnrolled === true);
+  }, [userData?.faceEnrolled]);
+
+  useEffect(() => {
+    setLevel(userData?.level || '');
+    setDepartment(userData?.department || '');
+  }, [userData?.level, userData?.department]);
 
   useEffect(() => {
     if (authLoading) return;
@@ -24,30 +35,31 @@ export default function StudentDashboard() {
       router.push('/login/student');
       return;
     }
-    init();
-  }, [user, role, authLoading]);
+  }, [user, role, authLoading, router]);
 
-  async function init() {
+  if (authLoading) return <Loading />;
+  if (!user || role !== 'student') return <Loading />;
+
+  const missingProfile = !userData?.level || !userData?.department;
+
+  async function handleSaveProfile(e) {
+    e.preventDefault();
+    setProfileSaving(true);
+    setProfileMsg('');
     try {
-      const pos = await getCurrentPosition();
-      setStudentPos(pos);
-    } catch {
-      // location denied — still show sessions
+      await updateUserProfile(user.uid, { level, department });
+      await refreshUserData();
+      setProfileMsg('Profile updated!');
+      setTimeout(() => {
+        setProfileMsg('');
+        setProfileOpen(false);
+      }, 1500);
+    } catch (err) {
+      setProfileMsg(err.message || 'Could not save profile.');
+    } finally {
+      setProfileSaving(false);
     }
-    const data = await getActiveSessions();
-    setSessions(data);
-    setLoading(false);
   }
-
-  function distanceTo(session) {
-    if (!studentPos || !session.location) return null;
-    return getDistance(
-      studentPos.lat, studentPos.lng,
-      session.location.lat, session.location.lng
-    );
-  }
-
-  if (authLoading || loading) return <Loading text="Loading sessions..." />;
 
   return (
     <div className="container">
@@ -102,6 +114,7 @@ export default function StudentDashboard() {
               onComplete={() => {
                 setEnrolled(true);
                 setShowEnroll(false);
+                refreshUserData();
               }}
               onCancel={() => setShowEnroll(false)}
             />
@@ -109,47 +122,114 @@ export default function StudentDashboard() {
         )}
       </div>
 
-      <h1 className="page-title" style={{ marginTop: 8 }}>
-        Live Sessions
-      </h1>
-      {sessions.length === 0 ? (
-        <div className="card animate-rise">
-          <p style={{ color: 'var(--ink-2)' }}>
-            No active sessions right now. Check back soon!
-          </p>
+      <div className="card animate-rise">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+          }}
+        >
+          <div>
+            <h2 className="subtitle" style={{ marginBottom: 2 }}>
+              My Profile
+            </h2>
+            <p style={{ color: 'var(--ink-2)', fontSize: '0.9rem' }}>
+              {missingProfile
+                ? 'Set your level and department to see lectures for you.'
+                : `${userData.level} Level · ${userData.department}`}
+            </p>
+          </div>
+          <button
+            className="btn-primary"
+            onClick={() => setProfileOpen((v) => !v)}
+          >
+            {missingProfile ? 'Set Level & Department' : 'Edit Profile'}
+          </button>
         </div>
-      ) : (
-        <div className={styles.list}>
-          {sessions.map((s, i) => {
-            const dist = distanceTo(s);
-            return (
-              <Link
-                key={s.id}
-                href={`/dashboard/student/session/${s.id}`}
-                className={styles.sessionCard}
-                style={{ animationDelay: `${i * 70}ms` }}
+        {profileOpen && (
+          <form
+            className="animate-pop"
+            style={{ marginTop: 18, display: 'grid', gap: 16, gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}
+            onSubmit={handleSaveProfile}
+          >
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label>Level</label>
+              <select
+                value={level}
+                onChange={(e) => setLevel(e.target.value)}
+                required
               >
-                <div>
-                  <strong>{s.title}</strong>
-                  <span className={styles.course}>{s.course}</span>
-                </div>
-                <div className={styles.meta}>
-                  <span className={styles.liveDot}>Live</span>
-                  <span
-                    className={
-                      dist !== null ? styles.distance : styles.distanceUnavailable
-                    }
-                  >
-                    {dist !== null
-                      ? `${Math.round(dist)}m away`
-                      : 'Location unavailable'}
-                  </span>
-                </div>
-              </Link>
-            );
-          })}
+                <option value="" disabled>
+                  Select level
+                </option>
+                {LEVELS.map((l) => (
+                  <option key={l.value} value={l.value}>
+                    {l.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="form-group" style={{ marginBottom: 0 }}>
+              <label>Department</label>
+              <select
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                required
+              >
+                <option value="" disabled>
+                  Select department
+                </option>
+                {DEPARTMENTS.map((d) => (
+                  <option key={d} value={d}>
+                    {d}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              <button
+                type="submit"
+                className="btn-success"
+                disabled={profileSaving}
+              >
+                {profileSaving ? 'Saving...' : 'Save'}
+              </button>
+              {profileMsg && (
+                <span className={profileMsg.includes('updated') ? 'success' : 'error'}>
+                  {profileMsg}
+                </span>
+              )}
+            </div>
+          </form>
+        )}
+      </div>
+
+      <div className="card animate-rise">
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            flexWrap: 'wrap',
+            gap: 12,
+          }}
+        >
+          <div>
+            <h2 className="subtitle" style={{ marginBottom: 2 }}>
+              Live Lectures
+            </h2>
+            <p style={{ color: 'var(--ink-2)', fontSize: '0.9rem' }}>
+              See live classes and mark your attendance.
+            </p>
+          </div>
+          <Link href="/dashboard/lectures" className="btn-primary">
+            View Lectures →
+          </Link>
         </div>
-      )}
+      </div>
     </div>
   );
 }

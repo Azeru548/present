@@ -1,29 +1,97 @@
 import { db } from './firebase';
 import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
-const MODELS_URL = 'https://justadudewhohacks.github.io/face-api.js/models';
-let loaded = false;
+const MODELS_URL =
+  process.env.NEXT_PUBLIC_FACE_MODELS_URL ||
+  'https://cdn.jsdelivr.net/gh/justadudewhohacks/face-api.js@0.22.2/weights';
 
-export async function loadModels() {
+const DETECTION_ATTEMPTS = 4;
+const DETECTION_INTERVAL = 300;
+
+let loaded = false;
+let loadingPromise = null;
+
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function waitForFaceAPI(timeout = 15000) {
+  return new Promise((resolve, reject) => {
+    if (typeof window !== 'undefined' && window.faceapi) {
+      resolve();
+      return;
+    }
+    const started = Date.now();
+    const timer = setInterval(() => {
+      if (window.faceapi) {
+        clearInterval(timer);
+        resolve();
+      } else if (Date.now() - started > timeout) {
+        clearInterval(timer);
+        reject(new Error('Face recognition library failed to load.'));
+      }
+    }, 100);
+  });
+}
+
+async function loadNetworkModels(onProgress) {
+  await waitForFaceAPI();
+  const nets = [
+    window.faceapi.nets.tinyFaceDetector,
+    window.faceapi.nets.faceLandmark68Net,
+    window.faceapi.nets.faceRecognitionNet,
+  ];
+  const total = nets.length;
+  let done = 0;
+  await Promise.all(
+    nets.map((net) =>
+      net.loadFromUri(MODELS_URL).then(() => {
+        done += 1;
+        onProgress?.(done, total);
+      })
+    )
+  );
+}
+
+export async function loadModels({ onProgress } = {}) {
   if (loaded) return;
-  if (typeof window === 'undefined' || !window.faceapi) {
-    throw new Error(
-      'face-api.js not loaded. Ensure the script is included in layout.'
-    );
+  if (loadingPromise) {
+    await loadingPromise;
+    return;
   }
-  await Promise.all([
-    window.faceapi.nets.ssdMobilenetv1.loadFromUri(MODELS_URL),
-    window.faceapi.nets.faceLandmark68Net.loadFromUri(MODELS_URL),
-    window.faceapi.nets.faceRecognitionNet.loadFromUri(MODELS_URL),
-  ]);
-  loaded = true;
+  loadingPromise = loadNetworkModels(onProgress).then(() => {
+    loaded = true;
+  });
+  try {
+    await loadingPromise;
+  } finally {
+    loadingPromise = null;
+  }
+}
+
+async function waitForVideoReady(video, timeout = 5000) {
+  const started = Date.now();
+  while (Date.now() - started < timeout) {
+    if (video.readyState >= 2 && video.videoWidth > 0 && video.currentTime > 0) {
+      return true;
+    }
+    await sleep(50);
+  }
+  return false;
 }
 
 export async function startCamera(videoEl) {
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   videoEl.srcObject = stream;
-  await new Promise((r) => (videoEl.onloadedmetadata = r));
+  await new Promise((resolve) => {
+    if (videoEl.readyState >= 1) {
+      resolve();
+    } else {
+      videoEl.onloadedmetadata = resolve;
+    }
+  });
   await videoEl.play();
+  await waitForVideoReady(videoEl);
   return stream;
 }
 
@@ -32,12 +100,25 @@ export function stopCamera(stream) {
 }
 
 export async function detectFace(video) {
-  const detections = await window.faceapi
-    .detectSingleFace(video)
-    .withFaceLandmarks()
-    .withFaceDescriptor();
-  if (!detections) throw new Error('No face detected. Ensure good lighting.');
-  return detections;
+  const options = new window.faceapi.TinyFaceDetectorOptions({
+    inputSize: 320,
+    scoreThreshold: 0.5,
+  });
+
+  let lastError = null;
+  for (let i = 0; i < DETECTION_ATTEMPTS; i += 1) {
+    if (i > 0) await sleep(DETECTION_INTERVAL);
+    try {
+      const detection = await window.faceapi
+        .detectSingleFace(video, options)
+        .withFaceLandmarks()
+        .withFaceDescriptor();
+      if (detection) return detection;
+    } catch (err) {
+      lastError = err;
+    }
+  }
+  throw new Error('No face detected. Ensure good lighting.');
 }
 
 export async function saveEnrollment(userId, descriptor) {
@@ -48,9 +129,9 @@ export async function saveEnrollment(userId, descriptor) {
   await updateDoc(doc(db, 'users', userId), { faceEnrolled: true });
 }
 
-export async function authenticateFace(userId) {
+export async function authenticateFace(userId, videoEl) {
   await loadModels();
-  const { video, stream } = await getVideo();
+  const { video, stream } = await getVideo(videoEl);
 
   try {
     const snap = await getDoc(doc(db, 'face_descriptors', userId));
@@ -59,12 +140,7 @@ export async function authenticateFace(userId) {
     }
 
     const storedDescriptor = new Float32Array(snap.data().descriptor);
-    const detections = await window.faceapi
-      .detectSingleFace(video)
-      .withFaceLandmarks()
-      .withFaceDescriptor();
-
-    if (!detections) throw new Error('No face detected. Ensure good lighting.');
+    const detections = await detectFace(video);
 
     const distance = window.faceapi.euclideanDistance(
       detections.descriptor,
@@ -79,17 +155,27 @@ export async function authenticateFace(userId) {
   }
 }
 
-async function getVideo() {
-  const video = document.createElement('video');
-  video.setAttribute('autoplay', '');
-  video.setAttribute('muted', '');
-  video.setAttribute('playsinline', '');
-  video.width = 640;
-  video.height = 480;
+async function getVideo(videoEl) {
+  let video = videoEl;
+  if (!video) {
+    video = document.createElement('video');
+    video.setAttribute('autoplay', '');
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.width = 640;
+    video.height = 480;
+  }
   const stream = await navigator.mediaDevices.getUserMedia({ video: true });
   video.srcObject = stream;
-  await new Promise((r) => (video.onloadedmetadata = r));
-  video.play();
+  await new Promise((resolve) => {
+    if (video.readyState >= 1) {
+      resolve();
+    } else {
+      video.onloadedmetadata = resolve;
+    }
+  });
+  await video.play();
+  await waitForVideoReady(video);
   return { video, stream };
 }
 

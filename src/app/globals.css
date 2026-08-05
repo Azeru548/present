@@ -170,7 +170,8 @@ input, select, textarea {
   letter-spacing: 0.02em;
   text-transform: uppercase;
 }
-.form-group input {
+.form-group input,
+.form-group select {
   width: 100%;
   padding: 12px 14px;
   background: var(--surface-2);
@@ -184,10 +185,12 @@ input, select, textarea {
 .form-group input::placeholder {
   color: var(--ink-3);
 }
-.form-group input:hover {
+.form-group input:hover,
+.form-group select:hover {
   border-color: var(--brand-300);
 }
-.form-group input:focus {
+.form-group input:focus,
+.form-group select:focus {
   outline: none;
   border-color: var(--brand-500);
   background: #fff;

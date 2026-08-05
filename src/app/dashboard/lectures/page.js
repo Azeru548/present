@@ -1,0 +1,162 @@
+'use client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
+import { getActiveSessions, getStudentAttendanceIds } from '@/lib/firestore';
+import { getCurrentPosition, getDistance } from '@/lib/geo';
+import Loading from '@/components/Loading';
+import styles from './page.module.css';
+
+export default function LecturesPage() {
+  const { user, role, userData, loading: authLoading } = useAuth();
+  const [sessions, setSessions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [studentPos, setStudentPos] = useState(null);
+  const [markedIds, setMarkedIds] = useState(new Set());
+  const [error, setError] = useState('');
+  const router = useRouter();
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user || role !== 'student') {
+      router.push('/login/student');
+      return;
+    }
+    load();
+  }, [user, role, authLoading, userData?.level, userData?.department]);
+
+  async function load() {
+    try {
+      const pos = await getCurrentPosition();
+      setStudentPos(pos);
+    } catch {
+      // location denied — still show sessions
+    }
+    try {
+      const [data, marked] = await Promise.all([
+        getActiveSessions(),
+        getStudentAttendanceIds(user.uid),
+      ]);
+      setMarkedIds(marked);
+      setSessions(filterSessions(data));
+    } catch (err) {
+      setError(err.message || 'Failed to load lectures.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function filterSessions(list) {
+    const { level, department } = userData || {};
+    return list.filter((s) => {
+      if (s.level && s.level !== level) return false;
+      if (s.department && s.department !== department) return false;
+      return true;
+    });
+  }
+
+  function distanceTo(session) {
+    if (!studentPos || !session.location) return null;
+    return getDistance(
+      studentPos.lat,
+      studentPos.lng,
+      session.location.lat,
+      session.location.lng
+    );
+  }
+
+  if (authLoading || loading) return <Loading text="Loading lectures..." />;
+
+  return (
+    <div className="container">
+      <div className={styles.header}>
+        <h1 className="page-title" style={{ marginBottom: 0 }}>
+          Live Lectures
+        </h1>
+        <Link href="/dashboard/student" className="btn-primary">
+          Dashboard
+        </Link>
+      </div>
+
+      {!userData?.level || !userData?.department ? (
+        <div className="card animate-rise">
+          <p style={{ color: 'var(--ink-2)' }}>
+            Set your level and department to see lectures specific to you.
+          </p>
+          <Link
+            href="/dashboard/student"
+            className="btn-primary"
+            style={{ marginTop: 12 }}
+          >
+            Complete My Profile
+          </Link>
+        </div>
+      ) : (
+        <p className={styles.filterNote}>
+          Showing live lectures for{' '}
+          <b>
+            {userData.level} Level · {userData.department}
+          </b>
+        </p>
+      )}
+
+      {error && <p className="error">{error}</p>}
+
+      {sessions.length === 0 ? (
+        <div className="card animate-rise">
+          <p style={{ color: 'var(--ink-2)' }}>
+            No live lectures for you right now. Check back soon!
+          </p>
+        </div>
+      ) : (
+        <div className={styles.list}>
+          {sessions.map((s, i) => {
+            const dist = distanceTo(s);
+            const marked = markedIds.has(s.id);
+            return (
+              <Link
+                key={s.id}
+                href={`/dashboard/student/session/${s.id}`}
+                className={styles.sessionCard}
+                style={{ animationDelay: `${i * 70}ms` }}
+              >
+                <div>
+                  <strong>{s.title}</strong>
+                  <span className={styles.course}>
+                    {s.course}
+                    {s.level && ` · ${s.level} Level`}
+                    {s.department && ` · ${s.department}`}
+                  </span>
+                  {s.locationNote && (
+                    <span className={styles.locationNote}>
+                      📍 {s.locationNote}
+                    </span>
+                  )}
+                </div>
+                <div className={styles.meta}>
+                  {marked ? (
+                    <span className={styles.marked}>Marked ✓</span>
+                  ) : (
+                    <span className={styles.liveDot}>Live</span>
+                  )}
+                  <span
+                    className={
+                      dist !== null
+                        ? styles.distance
+                        : styles.distanceUnavailable
+                    }
+                  >
+                    {dist !== null
+                      ? `${Math.round(dist)}m away`
+                      : 'Location unavailable'}
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}

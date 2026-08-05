@@ -7,11 +7,11 @@ import {
   updateProfile,
 } from 'firebase/auth';
 import { auth, db } from './firebase';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { doc, setDoc, getDoc, updateDoc } from 'firebase/firestore';
 
 const googleProvider = new GoogleAuthProvider();
 
-export async function registerWithRole(email, password, name, role) {
+export async function registerWithRole(email, password, name, role, extra = {}) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(cred.user, { displayName: name });
   await setDoc(doc(db, 'users', cred.user.uid), {
@@ -20,6 +20,7 @@ export async function registerWithRole(email, password, name, role) {
     role,
     createdAt: new Date().toISOString(),
     faceEnrolled: false,
+    ...extra,
   });
   return cred.user;
 }
@@ -57,4 +58,8 @@ export async function getUserRole(uid) {
 export async function getUserData(uid) {
   const snap = await getDoc(doc(db, 'users', uid));
   return snap.exists() ? snap.data() : null;
+}
+
+export async function updateUserProfile(uid, data) {
+  await updateDoc(doc(db, 'users', uid), data);
 }

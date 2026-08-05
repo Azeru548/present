@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import { getUserRole, getUserData } from '@/lib/auth';
@@ -13,6 +13,9 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    import('@/lib/face')
+      .then(({ loadModels }) => loadModels())
+      .catch(() => {});
     const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
       setUser(firebaseUser);
       if (firebaseUser) {
@@ -31,8 +34,18 @@ export function AuthProvider({ children }) {
     return unsub;
   }, []);
 
+  const refreshUserData = useCallback(async () => {
+    if (auth.currentUser) {
+      const d = await getUserData(auth.currentUser.uid);
+      setUserData(d);
+      setRole(d?.role || null);
+    }
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ user, role, userData, loading }}>
+    <AuthContext.Provider
+      value={{ user, role, userData, loading, refreshUserData }}
+    >
       {children}
     </AuthContext.Provider>
   );

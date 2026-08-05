@@ -1,14 +1,26 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { useAuth } from '@/context/AuthContext';
 import { login, signInWithGoogle, getUserData } from '@/lib/auth';
+import Loading from '@/components/Loading';
 
 export default function StudentLogin() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { user, role, loading } = useAuth();
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard/student');
+    }
+  }, [user, role, loading, router]);
+
+  if (loading) return <Loading text="Checking session..." />;
+  if (user) return <Loading text="Redirecting..." />;
 
   async function handleSubmit(e) {
     e.preventDefault();

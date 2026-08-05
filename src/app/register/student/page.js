@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
+import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import FaceEnrollment from '@/components/FaceEnrollment';
 
 export default function StudentRegister() {
@@ -11,6 +12,8 @@ export default function StudentRegister() {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [level, setLevel] = useState('');
+  const [department, setDepartment] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -18,7 +21,10 @@ export default function StudentRegister() {
     e.preventDefault();
     setError('');
     try {
-      const user = await registerWithRole(email, password, name, 'student');
+      const user = await registerWithRole(email, password, name, 'student', {
+        level,
+        department,
+      });
       setUserId(user.uid);
       setStep('enroll');
     } catch (err) {
@@ -91,6 +97,40 @@ export default function StudentRegister() {
             required
             minLength={6}
           />
+        </div>
+        <div className="form-group">
+          <label>Level</label>
+          <select
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Select your level
+            </option>
+            {LEVELS.map((l) => (
+              <option key={l.value} value={l.value}>
+                {l.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div className="form-group">
+          <label>Department</label>
+          <select
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            required
+          >
+            <option value="" disabled>
+              Select your department
+            </option>
+            {DEPARTMENTS.map((d) => (
+              <option key={d} value={d}>
+                {d}
+              </option>
+            ))}
+          </select>
         </div>
         {error && <p className="error">{error}</p>}
         <button

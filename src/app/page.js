@@ -108,13 +108,17 @@ export default function Home() {
                 )}
               </div>
 
-              {!user && (
+{!user && (
                 <div className={styles.heroFoot}>
                   <Link href="/login/student" className={styles.lecturerLink}>
-                    Already have an account? <span>Sign in →</span>
+                    Already have an account? <span>Sign in as Student →</span>
                   </Link>
                   <span className={styles.dividerDot} aria-hidden="true" />
-                  <span className={styles.roles}>For students &amp; lecturers</span>
+                  <Link href="/login/lecturer" className={styles.lecturerLink}>
+                    Sign in as Lecturer →
+                  </Link>
+                  <span className={styles.dividerDot} aria-hidden="true" />
+                  <span className={styles.roles}>For students & lecturers</span>
                 </div>
               )}
             </div>
@@ -254,7 +258,13 @@ export default function Home() {
                   href="/login/student"
                   className={`${styles.cta} ${styles.ctaGhostDark}`}
                 >
-                  Login
+                  Student Login
+                </Link>
+                <Link
+                  href="/login/lecturer"
+                  className={`${styles.cta} ${styles.ctaGhostDark}`}
+                >
+                  Lecturer Login
                 </Link>
               </>
             )}

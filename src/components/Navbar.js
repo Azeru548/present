@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
@@ -13,7 +13,8 @@ export default function Navbar() {
 
   async function handleLogout() {
     await logout();
-    router.push('/');
+    // Wait for auth state to clear before redirecting
+    router.push('/login');
   }
 
   function closeMenu() {
@@ -53,13 +54,18 @@ export default function Navbar() {
             <Link href={dashboardHref} className={styles.link} onClick={closeMenu}>
               Dashboard
             </Link>
+            {role === 'student' && (
+              <Link href="/dashboard/lectures" className={styles.link} onClick={closeMenu}>
+                Lectures
+              </Link>
+            )}
             <button onClick={handleLogout} className={styles.btn}>
               Logout
             </button>
           </>
         ) : (
           <>
-            <Link href="/login/student" className={styles.link} onClick={closeMenu}>
+            <Link href="/login" className={styles.link} onClick={closeMenu}>
               Login
             </Link>
             <Link

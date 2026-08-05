@@ -80,6 +80,15 @@ export async function hasMarkedAttendance(sessionId, studentId) {
   return snap.exists();
 }
 
+export async function getStudentAttendanceIds(studentId) {
+  const q = query(
+    collection(db, ATTENDANCE),
+    where('studentId', '==', studentId)
+  );
+  const snap = await getDocs(q);
+  return new Set(snap.docs.map((d) => d.data().sessionId));
+}
+
 export async function getSessionAttendance(sessionId) {
   const q = query(
     collection(db, ATTENDANCE),

@@ -15,12 +15,15 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
   const streamRef = useRef(null);
   const [stage, setStage] = useState('starting'); // starting | ready | capturing | success | error
   const [message, setMessage] = useState('');
+  const [modelProgress, setModelProgress] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        await loadModels();
+        await loadModels({
+          onProgress: (done, total) => setModelProgress({ done, total }),
+        });
         if (cancelled) return;
         const stream = await startCamera(videoRef.current);
         streamRef.current = stream;
@@ -102,7 +105,11 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
         {stage === 'starting' && (
           <div className={styles.scrim}>
             <span className={styles.spinner} />
-            <p className={styles.muted}>Preparing camera...</p>
+            <p className={styles.muted}>
+              {modelProgress
+                ? `Loading AI models (${modelProgress.done}/${modelProgress.total})...`
+                : 'Starting camera...'}
+            </p>
           </div>
         )}
         {stage === 'capturing' && (

@@ -1,0 +1,32 @@
+export const LEVELS = [
+  { value: '100', label: '100 Level' },
+  { value: '200', label: '200 Level' },
+  { value: '300', label: '300 Level' },
+  { value: '400', label: '400 Level' },
+  { value: '500', label: '500 Level' },
+];
+
+export const DEPARTMENTS = [
+  'Computer Science',
+  'Software Engineering',
+  'Information Technology',
+  'Cyber Security',
+  'Electrical Engineering',
+  'Mechanical Engineering',
+  'Civil Engineering',
+  'Mathematics',
+  'Statistics',
+  'Physics',
+  'Chemistry',
+  'Biology',
+  'Microbiology',
+  'Economics',
+  'Business Administration',
+  'Accounting',
+  'Banking & Finance',
+  'Mass Communication',
+  'Law',
+  'Medicine',
+  'Nursing',
+  'Pharmacy',
+];
