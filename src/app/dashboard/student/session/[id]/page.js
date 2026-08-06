@@ -86,8 +86,14 @@ export default function SessionAttendance() {
     if (msg.includes('library failed to load')) {
       return 'Face recognition library could not be loaded. Check your internet connection and try again.';
     }
+    if (msg.includes('still loading') || msg.includes('did not finish loading')) {
+      return 'Face models are still downloading. Check your connection and try again in a moment.';
+    }
     if (msg.includes('No face detected')) {
       return 'No face detected. Make sure your face is visible in the oval and the lighting is good.';
+    }
+    if (msg.includes('too small or blurry')) {
+      return 'Your face was detected but was too small or blurry. Move closer to the camera, keep still, and try again.';
     }
     if (msg.includes('does not match')) {
       return 'Your face does not match the one on file. If you look different now, update your face enrollment from your dashboard.';

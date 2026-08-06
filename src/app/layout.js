@@ -18,10 +18,8 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <head>
-        <script
-          src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"
-          async
-        />
+        <link rel="preload" href="/vendor/face-api.min.js" as="script" />
+        <script src="/vendor/face-api.min.js" async />
       </head>
       <body>
         <AuthProvider>

@@ -4,7 +4,7 @@ import {
   loadModels,
   startCamera,
   stopCamera,
-  detectFace,
+  captureDescriptor,
   saveEnrollment,
 } from '@/lib/face';
 import styles from './FaceEnrollment.module.css';
@@ -46,9 +46,11 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
     setStage('capturing');
     setMessage('');
     try {
-      const detection = await detectFace(videoRef.current);
+      const { descriptor, detection } = await captureDescriptor(
+        videoRef.current
+      );
       drawBox(detection);
-      await saveEnrollment(userId, Array.from(detection.descriptor));
+      await saveEnrollment(userId, descriptor);
       setStage('success');
       stopCamera(streamRef.current);
       streamRef.current = null;
@@ -115,7 +117,7 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
         {stage === 'capturing' && (
           <div className={styles.scrim}>
             <span className={styles.spinner} />
-            <p className={styles.muted}>Analyzing your face...</p>
+            <p className={styles.muted}>Capturing your face — keep still...</p>
           </div>
         )}
       </div>
