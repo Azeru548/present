@@ -1,14 +1,15 @@
 :root {
-  --brand: #10b981;
-  --brand-50: #ecfdf5;
-  --brand-100: #d1fae5;
-  --brand-200: #a7f3d0;
-  --brand-300: #6ee7b7;
-  --brand-400: #34d399;
-  --brand-500: #10b981;
-  --brand-600: #059669;
-  --brand-700: #047857;
-  --brand-800: #065f46;
+  /* Accent matches landing: ink/charcoal, not green or bright blue */
+  --brand: #0f172a;
+  --brand-50: #f1f5f9;
+  --brand-100: #e2e8f0;
+  --brand-200: #cbd5e1;
+  --brand-300: #94a3b8;
+  --brand-400: #64748b;
+  --brand-500: #334155;
+  --brand-600: #1e293b;
+  --brand-700: #0f172a;
+  --brand-800: #020617;
 
   --ink: #0f172a;
   --ink-2: #475569;
@@ -23,11 +24,11 @@
   --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.08);
   --shadow-md: 0 6px 18px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.05);
   --shadow-lg: 0 24px 48px rgba(15, 23, 42, 0.12);
-  --shadow-brand: 0 10px 24px rgba(16, 185, 129, 0.32);
+  --shadow-brand: 0 10px 24px rgba(15, 23, 42, 0.18);
 
-  --radius: 16px;
-  --radius-sm: 12px;
-  --radius-full: 999px;
+  --radius: 4px;
+  --radius-sm: 2px;
+  --radius-full: 2px;
 
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -44,14 +45,17 @@ html {
 }
 
 body {
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: var(--font-sans), 'Segoe UI', system-ui, -apple-system, sans-serif;
   color: var(--ink);
   min-height: 100vh;
   line-height: 1.5;
-  background:
-    radial-gradient(900px 460px at 8% -6%, rgba(16, 185, 129, 0.12), transparent 60%),
-    radial-gradient(780px 420px at 104% 4%, rgba(56, 189, 248, 0.1), transparent 55%),
-    linear-gradient(180deg, #f8faf9 0%, #eef4f1 100%);
+  background-color: var(--surface-2);
+  background-image:
+    linear-gradient(to right, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(15, 23, 42, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 ::selection {
@@ -94,7 +98,13 @@ input, select, textarea {
   margin-bottom: 20px;
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
-  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease);
+  transition: box-shadow 0.25s var(--ease), transform 0.25s var(--ease),
+    border-color 0.2s var(--ease);
+}
+.card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--brand-200);
 }
 
 /* ---------- Buttons ---------- */
@@ -120,22 +130,24 @@ input, select, textarea {
 }
 .btn-primary,
 .btn-success {
-  background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+  background: var(--brand-600);
 }
 .btn-danger {
-  background: linear-gradient(135deg, #f87171, var(--danger));
-  box-shadow: 0 8px 20px rgba(239, 68, 68, 0.28);
+  background: var(--danger);
+  box-shadow: none;
 }
 .btn-primary:hover,
 .btn-success:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-brand);
-  filter: brightness(1.05);
+  transform: none;
+  box-shadow: none;
+  background: var(--brand-700);
+  filter: none;
 }
 .btn-danger:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 12px 24px rgba(239, 68, 68, 0.36);
-  filter: brightness(1.03);
+  transform: none;
+  box-shadow: none;
+  background: var(--danger-dark);
+  filter: none;
 }
 .btn-primary:active,
 .btn-success:active,
@@ -153,7 +165,7 @@ input, select, textarea {
 .btn-primary:focus-visible,
 .btn-success:focus-visible,
 .btn-danger:focus-visible {
-  outline: 3px solid rgba(16, 185, 129, 0.35);
+  outline: 3px solid rgba(15, 23, 42, 0.28);
   outline-offset: 2px;
 }
 
@@ -194,7 +206,7 @@ input, select, textarea {
   outline: none;
   border-color: var(--brand-500);
   background: #fff;
-  box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.14);
+  box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.12);
 }
 
 /* ---------- Typography ---------- */
@@ -320,8 +332,9 @@ input, select, textarea {
   justify-content: center;
   margin: 0 auto 16px;
   font-size: 1.4rem;
-  background: linear-gradient(135deg, var(--brand-100), var(--brand-200));
-  box-shadow: var(--shadow-sm);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 .divider {
   display: flex;

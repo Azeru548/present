@@ -10,6 +10,14 @@ export default function Navbar() {
   const { user, role, userData } = useAuth();
   const router = useRouter();
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   async function handleLogout() {
     await logout();
@@ -25,7 +33,7 @@ export default function Navbar() {
     role === 'lecturer' ? '/dashboard/lecturer' : '/dashboard/student';
 
   return (
-    <nav className={styles.nav}>
+    <nav className={`${styles.nav} ${scrolled ? styles.navScrolled : ''}`}>
       <Link href="/" className={styles.logoLink} onClick={closeMenu}>
         <img src="/logopresent.png" alt="Present" className={styles.logoImg} />
         <span className={styles.logoText}>Present</span>
@@ -38,10 +46,13 @@ export default function Navbar() {
         {!user && (
           <>
             <Link href="/#features" className={styles.link} onClick={closeMenu}>
-              Features
+              Capabilities
             </Link>
             <Link href="/#how-it-works" className={styles.link} onClick={closeMenu}>
               How it works
+            </Link>
+            <Link href="/#for-whom" className={styles.link} onClick={closeMenu}>
+              Who it serves
             </Link>
           </>
         )}

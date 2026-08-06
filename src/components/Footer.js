@@ -7,31 +7,36 @@ export default function Footer() {
       <div className={styles.container}>
         <div className={styles.top}>
           <div className={styles.brand}>
-            <img src="/logopresent.png" alt="Present" className={styles.logo} />
+            <div className={styles.brandRow}>
+              <img src="/logopresent.png" alt="Present" className={styles.logo} />
+              <span className={styles.brandName}>Present</span>
+            </div>
             <p className={styles.tagline}>
-              Geo and face verified attendance, built for honest classrooms.
+              Geo-location and facial recognition verified attendance for
+              classrooms that need records they can trust.
             </p>
           </div>
 
           <div className={styles.columns}>
             <div className={styles.col}>
               <p className={styles.colTitle}>Product</p>
-              <Link href="/#features">Features</Link>
+              <Link href="/#features">Capabilities</Link>
               <Link href="/#how-it-works">How it works</Link>
-              <Link href="/dashboard/student">Student Dashboard</Link>
+              <Link href="/#for-whom">For lecturers &amp; students</Link>
             </div>
             <div className={styles.col}>
-              <p className={styles.colTitle}>Get Started</p>
-              <Link href="/register/student">Student Sign up</Link>
-              <Link href="/register/lecturer">Lecturer Sign up</Link>
-              <Link href="/login/student">Login</Link>
+              <p className={styles.colTitle}>Accounts</p>
+              <Link href="/register/student">Student sign up</Link>
+              <Link href="/register/lecturer">Lecturer sign up</Link>
+              <Link href="/login/student">Student login</Link>
+              <Link href="/login/lecturer">Lecturer login</Link>
             </div>
           </div>
         </div>
 
         <div className={styles.bottom}>
           <span>© {new Date().getFullYear()} Present. All rights reserved.</span>
-          <span>Attendance, verified.</span>
+          <span className={styles.bottomNote}>Attendance, verified.</span>
         </div>
       </div>
     </footer>

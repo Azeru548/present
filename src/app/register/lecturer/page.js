@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
+import Icon from '@/components/Icon';
 
 export default function LecturerRegister() {
   const [name, setName] = useState('');
@@ -26,7 +27,7 @@ export default function LecturerRegister() {
     <div className="container">
       <div className="card authCard animate-pop">
       <div className="auth-icon" aria-hidden="true">
-        ✏️
+        <Icon name="edit" size={22} />
       </div>
       <h1 className="page-title">Lecturer Registration</h1>
       <form onSubmit={handleSubmit}>

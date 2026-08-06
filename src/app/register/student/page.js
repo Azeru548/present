@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import FaceEnrollment from '@/components/FaceEnrollment';
+import Icon from '@/components/Icon';
 
 export default function StudentRegister() {
   const [step, setStep] = useState('form'); // form | enroll
@@ -37,7 +38,7 @@ export default function StudentRegister() {
       <div className="container">
         <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
         <div className="auth-icon" aria-hidden="true">
-          😀
+          <Icon name="face" size={22} />
         </div>
         <h1 className="page-title" style={{ textAlign: 'center' }}>
           Enroll Your Face
@@ -63,7 +64,7 @@ export default function StudentRegister() {
     <div className="container">
       <div className="card authCard animate-pop">
       <div className="auth-icon" aria-hidden="true">
-        ✏️
+        <Icon name="edit" size={22} />
       </div>
       <h1 className="page-title">Student Registration</h1>
       <form onSubmit={handleSubmit}>

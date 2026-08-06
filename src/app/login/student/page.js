@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { login, signInWithGoogle, getUserData } from '@/lib/auth';
 import Loading from '@/components/Loading';
+import Icon from '@/components/Icon';
 
 export default function StudentLogin() {
   const [email, setEmail] = useState('');
@@ -42,7 +43,7 @@ export default function StudentLogin() {
     <div className="container">
       <div className="card authCard animate-pop">
       <div className="auth-icon" aria-hidden="true">
-        🎓
+        <Icon name="student" size={22} />
       </div>
       <h1 className="page-title">Student Login</h1>
       <form onSubmit={handleSubmit}>
@@ -90,7 +91,7 @@ export default function StudentLogin() {
         }}
         className="oauth-btn"
       >
-        <span aria-hidden="true">🌐</span>
+        <Icon name="google" size={18} />
         Sign in with Google
       </button>
 

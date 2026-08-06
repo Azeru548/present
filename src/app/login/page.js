@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import Loading from '@/components/Loading';
+import Icon from '@/components/Icon';
 
 export default function LoginChooser() {
   const { user, role, loading } = useAuth();
@@ -22,7 +23,7 @@ export default function LoginChooser() {
     <div className="container">
       <div className="card authCard animate-pop">
         <div className="auth-icon" aria-hidden="true">
-          🔐
+          <Icon name="lock" size={22} />
         </div>
         <h1 className="page-title">Sign In</h1>
         <p
@@ -41,7 +42,7 @@ export default function LoginChooser() {
           className="oauth-btn"
           style={{ marginBottom: 12, textDecoration: 'none' }}
         >
-          <span aria-hidden="true">🎓</span>
+          <Icon name="student" size={18} />
           I&rsquo;m a Student
         </Link>
 
@@ -50,7 +51,7 @@ export default function LoginChooser() {
           className="oauth-btn"
           style={{ textDecoration: 'none' }}
         >
-          <span aria-hidden="true">👨‍🏫</span>
+          <Icon name="lecturer" size={18} />
           I&rsquo;m a Lecturer
         </Link>
 

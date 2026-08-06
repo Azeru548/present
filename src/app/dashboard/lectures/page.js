@@ -6,6 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getActiveSessions, getStudentAttendanceIds } from '@/lib/firestore';
 import { getCurrentPosition, getDistance } from '@/lib/geo';
 import Loading from '@/components/Loading';
+import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
 export default function LecturesPage() {
@@ -130,13 +131,21 @@ export default function LecturesPage() {
                   </span>
                   {s.locationNote && (
                     <span className={styles.locationNote}>
-                      📍 {s.locationNote}
+                      <Icon
+                        name="pin"
+                        size={13}
+                        style={{ verticalAlign: '-2px', marginRight: 5 }}
+                      />
+                      {s.locationNote}
                     </span>
                   )}
                 </div>
                 <div className={styles.meta}>
                   {marked ? (
-                    <span className={styles.marked}>Marked ✓</span>
+                    <span className={styles.marked}>
+                      <Icon name="check" size={12} strokeWidth={2.5} />
+                      Marked
+                    </span>
                   ) : (
                     <span className={styles.liveDot}>Live</span>
                   )}

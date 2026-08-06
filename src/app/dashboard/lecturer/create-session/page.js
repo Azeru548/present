@@ -6,6 +6,7 @@ import { createSession } from '@/lib/firestore';
 import { getCurrentPosition } from '@/lib/geo';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
+import Icon from '@/components/Icon';
 
 export default function CreateSession() {
   const { user, role, loading: authLoading } = useAuth();
@@ -62,7 +63,7 @@ export default function CreateSession() {
     <div className="container">
       <div className="card animate-pop" style={{ maxWidth: 520, margin: '0 auto' }}>
       <div className="auth-icon" aria-hidden="true">
-        🗓️
+        <Icon name="calendar" size={22} />
       </div>
       <h1 className="page-title" style={{ textAlign: 'center' }}>
         Create Lecture Session

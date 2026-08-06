@@ -6,6 +6,7 @@ import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore
 import { getCurrentPosition, isWithinRange } from '@/lib/geo';
 import { authenticateFace, stopCamera } from '@/lib/face';
 import Loading from '@/components/Loading';
+import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
 const checkStyle = {

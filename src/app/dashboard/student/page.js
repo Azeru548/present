@@ -7,6 +7,7 @@ import { updateUserProfile } from '@/lib/auth';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 import FaceEnrollment from '@/components/FaceEnrollment';
+import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
 export default function StudentDashboard() {
@@ -83,11 +84,13 @@ export default function StudentDashboard() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 borderRadius: 14,
-                background: 'linear-gradient(135deg, var(--brand-100), var(--brand-200))',
+                background: 'var(--surface-2)',
+                border: '1px solid var(--line)',
+                color: 'var(--ink)',
               }}
               aria-hidden="true"
             >
-              {enrolled ? '✅' : '🙋'}
+              <Icon name={enrolled ? 'userCheck' : 'face'} size={26} />
             </span>
             <div>
               <h2 className="subtitle" style={{ marginBottom: 2 }}>
