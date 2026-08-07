@@ -126,9 +126,14 @@ export default function LecturesPage() {
                   <strong>{s.title}</strong>
                   <span className={styles.course}>
                     {s.course}
-                    {s.level && ` · ${s.level} Level`}
-                    {s.department && ` · ${s.department}`}
                   </span>
+                  {(s.level || s.department) && (
+                    <span className={styles.tag}>
+                      {[s.level && `${s.level} Level`, s.department]
+                        .filter(Boolean)
+                        .join(' · ')}
+                    </span>
+                  )}
                   {s.locationNote && (
                     <span className={styles.locationNote}>
                       <Icon

@@ -23,7 +23,8 @@ export default function SessionAttendance() {
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [session, setSession] = useState(null);
-  const [step, setStep] = useState('loading'); // loading | geo | face | done | error
+  const [step, setStep] = useState('loading'); // loading | geo | face | done | denied | error
+  const [deniedReason, setDeniedReason] = useState(''); // profile | mismatch
   const [geoResult, setGeoResult] = useState(null);
   const [faceResult, setFaceResult] = useState(null);
   const [faceScanning, setFaceScanning] = useState(false);
@@ -49,6 +50,19 @@ export default function SessionAttendance() {
       return;
     }
     setSession(s);
+
+    const { level, department } = userData || {};
+    const requiresProfile = (s.level && !level) || (s.department && !department);
+    if (requiresProfile) {
+      setDeniedReason('profile');
+      setStep('denied');
+      return;
+    }
+    if ((s.level && s.level !== level) || (s.department && s.department !== department)) {
+      setDeniedReason('mismatch');
+      setStep('denied');
+      return;
+    }
 
     const already = await hasMarkedAttendance(id, user.uid);
     if (already) {
@@ -225,6 +239,102 @@ export default function SessionAttendance() {
           <p style={{ color: 'var(--ink-2)', marginBottom: 4 }}>
             {session.course}
           </p>
+          {(session.level || session.department) && (
+            <span
+              style={{
+                display: 'inline-block',
+                fontSize: '0.72rem',
+                fontWeight: 700,
+                letterSpacing: '0.05em',
+                textTransform: 'uppercase',
+                color: 'var(--brand-700)',
+                background: 'var(--brand-100)',
+                border: '1px solid var(--brand-200)',
+                padding: '4px 12px',
+                borderRadius: 'var(--radius-full)',
+                marginBottom: 16,
+              }}
+            >
+              {[session.level && `${session.level} Level`, session.department]
+                .filter(Boolean)
+                .join(' · ')}
+            </span>
+          )}
+
+          {step === 'denied' && (
+            <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
+              <div
+                style={{
+                  width: 76,
+                  height: 76,
+                  margin: '0 auto 18px',
+                  borderRadius: '50%',
+                  background: '#fef3f2',
+                  border: '1px solid #fecdca',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '2rem',
+                  color: '#b42318',
+                  animation: 'popIn 0.5s cubic-bezier(.4,0,.2,1)',
+                }}
+                aria-hidden="true"
+              >
+                🚫
+              </div>
+              <h2 style={{ marginBottom: 10 }}>
+                {deniedReason === 'profile'
+                  ? 'Complete Your Profile First'
+                  : 'You Are Not Eligible for This Session'}
+              </h2>
+              {deniedReason === 'profile' ? (
+                <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+                  This session is for{' '}
+                  <b>
+                    {[session.level && `${session.level} Level`, session.department]
+                      .filter(Boolean)
+                      .join(' · ') || 'a specific level/department'}
+                  </b>
+                  . Set your level and department in your profile to mark
+                  attendance here.
+                </p>
+              ) : (
+                <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+                  This session is for{' '}
+                  <b>
+                    {[session.level && `${session.level} Level`, session.department]
+                      .filter(Boolean)
+                      .join(' · ')}
+                  </b>
+                  , but you are{' '}
+                  <b>
+                    {userData?.level} Level · {userData?.department}
+                  </b>
+                  . Only students in the right class can verify and mark
+                  attendance.
+                </p>
+              )}
+              <div
+                style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'center' }}
+              >
+                {deniedReason === 'profile' ? (
+                  <button
+                    className="btn-primary"
+                    onClick={() => router.push('/dashboard/student')}
+                  >
+                    Complete My Profile
+                  </button>
+                ) : (
+                  <button
+                    className="btn-primary"
+                    onClick={() => router.push('/dashboard/lectures')}
+                  >
+                    Back to Lectures
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
           {session.locationNote && (
             <p
               style={{

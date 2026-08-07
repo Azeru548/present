@@ -51,6 +51,38 @@ export default function LecturerDashboard() {
     setAttLoading(false);
   }
 
+  function exportCsv() {
+    const rows = [
+      ['#', 'Student Name', 'Email', 'Geo Verified', 'Face Verified', 'Timestamp'],
+      ...attendance.map((r, i) => [
+        String(i + 1),
+        r.studentName || '',
+        r.studentEmail || '',
+        r.geoVerified ? 'Yes' : 'No',
+        r.faceVerified ? 'Yes' : 'No',
+        r.timestamp?.toDate?.().toLocaleString() || '',
+      ]),
+    ];
+    const csv = rows
+      .map((row) =>
+        row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')
+      )
+      .join('\r\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    const slug = (selectedSession?.title || 'attendance')
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    a.href = url;
+    a.download = `attendance-${slug}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
   if (authLoading || loading) return <Loading />;
 
   return (
@@ -82,7 +114,13 @@ export default function LecturerDashboard() {
               >
                 <div>
                   <strong>{s.title}</strong>
-                  <span className={styles.course}>{s.course}</span>
+                  <span className={styles.course}>
+                    {s.course}
+                    {(s.level || s.department) &&
+                      ` · ${[s.level && `${s.level} Level`, s.department]
+                        .filter(Boolean)
+                        .join(' · ')}`}
+                  </span>
                 </div>
                 <span className={s.isActive ? styles.badgeActive : styles.badgeClosed}>
                   {s.isActive ? 'Active' : 'Closed'}
@@ -92,11 +130,30 @@ export default function LecturerDashboard() {
           </div>
 
           <div className="card animate-rise" style={{ flex: 2 }}>
-            <h2 className="subtitle">
-              {selectedSession
-                ? `Attendance — ${selectedSession.title}`
-                : 'Select a session'}
-            </h2>
+            <div
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                gap: 10,
+              }}
+            >
+              <h2 className="subtitle">
+                {selectedSession
+                  ? `Attendance — ${selectedSession.title}`
+                  : 'Select a session'}
+              </h2>
+              {selectedSession && attendance.length > 0 && (
+                <button
+                  className="btn-primary"
+                  style={{ padding: '8px 14px' }}
+                  onClick={exportCsv}
+                >
+                  Download CSV
+                </button>
+              )}
+            </div>
 
             {selectedSession && selectedSession.isActive && (
               <button

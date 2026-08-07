@@ -66,9 +66,14 @@ export default function Navbar() {
               Dashboard
             </Link>
             {role === 'student' && (
-              <Link href="/dashboard/lectures" className={styles.link} onClick={closeMenu}>
-                Lectures
-              </Link>
+              <>
+                <Link href="/dashboard/lectures" className={styles.link} onClick={closeMenu}>
+                  Lectures
+                </Link>
+                <Link href="/dashboard/student/attendance" className={styles.link} onClick={closeMenu}>
+                  History
+                </Link>
+              </>
             )}
             <button onClick={handleLogout} className={styles.btn}>
               Logout

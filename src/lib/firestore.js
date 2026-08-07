@@ -54,6 +54,12 @@ export async function getActiveSessions() {
   return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
 }
 
+export async function getAllSessions() {
+  const q = query(collection(db, SESSIONS), orderBy('createdAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+}
+
 export async function getLecturerSessions(lecturerId) {
   const q = query(
     collection(db, SESSIONS),
