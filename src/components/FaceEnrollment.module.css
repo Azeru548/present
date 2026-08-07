@@ -51,8 +51,8 @@
 }
 
 .guideOval {
-  width: 62%;
-  height: 70%;
+  height: 66%;
+  aspect-ratio: 3 / 4;
   border-radius: 50%;
   border: 3px dashed rgba(255, 255, 255, 0.85);
   box-shadow: 0 0 0 4px rgba(15, 23, 42, 0.25);
@@ -77,9 +77,44 @@
   line-height: 1.5;
 }
 
+.qualityGood {
+  color: var(--brand-700);
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.qualityHint {
+  color: #d97706;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
 .muted {
   color: #cbd5e1;
   font-style: italic;
+}
+
+.progressTrack {
+  width: 78%;
+  max-width: 240px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-300), var(--brand-500));
+  transition: width 0.2s ease;
+}
+
+.progressPct {
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 .spinner {

@@ -14,7 +14,7 @@
   width: 100%;
   display: block;
   transform: scaleX(-1);
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
@@ -22,8 +22,8 @@
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 62%;
-  height: 70%;
+  height: 62%;
+  aspect-ratio: 3 / 4;
   transform: translate(-50%, -50%);
   border-radius: 50%;
   border: 3px dashed rgba(255, 255, 255, 0.85);
@@ -73,6 +73,40 @@
   font-weight: 600;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
   pointer-events: none;
+}
+
+.loadScrim {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 220px;
+  padding: 24px;
+  text-align: center;
+}
+
+.progressTrack {
+  width: 78%;
+  max-width: 240px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  overflow: hidden;
+}
+
+.progressBar {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--brand-300), var(--brand-500));
+  transition: width 0.2s ease;
+}
+
+.progressPct {
+  color: #e2e8f0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin: 0;
 }
 
 @keyframes spin {

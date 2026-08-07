@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore';
 import { getCurrentPosition, isWithinRange } from '@/lib/geo';
-import { authenticateFace, stopCamera } from '@/lib/face';
+import { authenticateFace, loadModels, probeFrame, stopCamera } from '@/lib/face';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 import styles from './page.module.css';
@@ -19,7 +19,7 @@ const checkStyle = {
 
 export default function SessionAttendance() {
   const { id } = useParams();
-  const { user, role, loading: authLoading } = useAuth();
+  const { user, role, userData, loading: authLoading } = useAuth();
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [session, setSession] = useState(null);
@@ -27,6 +27,8 @@ export default function SessionAttendance() {
   const [geoResult, setGeoResult] = useState(null);
   const [faceResult, setFaceResult] = useState(null);
   const [faceScanning, setFaceScanning] = useState(false);
+  const [modelProgress, setModelProgress] = useState(null); // null = not loading, 0-100 while loading
+  const [scanStatus, setScanStatus] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
 
@@ -75,7 +77,21 @@ export default function SessionAttendance() {
 
   function handleFaceCheck() {
     setError('');
-    setFaceScanning(true);
+    setModelProgress(0);
+    (async () => {
+      try {
+        // Load models first so the user sees a progress bar instead of a
+        // silent "scanning" state while the ~6MB of weights download.
+        await loadModels({ onProgress: setModelProgress });
+        setModelProgress(null);
+        setFaceScanning(true);
+      } catch (err) {
+        setModelProgress(null);
+        setError(
+          'Could not load the face recognition models. Check your connection and try again.'
+        );
+      }
+    })();
   }
 
   function friendlyFaceError(err) {
@@ -93,8 +109,11 @@ export default function SessionAttendance() {
     if (msg.includes('No face detected')) {
       return 'No face detected. Make sure your face is visible in the oval and the lighting is good.';
     }
-    if (msg.includes('too small or blurry')) {
-      return 'Your face was detected but was too small or blurry. Move closer to the camera, keep still, and try again.';
+    if (msg.includes('too small')) {
+      return 'Your face was detected but appears too small. Move closer to the camera so your face fills the oval.';
+    }
+    if (msg.includes('blurry')) {
+      return 'Your face was detected but is blurry. Hold still, remove glare, and make sure the lighting is good.';
     }
     if (msg.includes('does not match')) {
       return 'Your face does not match the one on file. If you look different now, update your face enrollment from your dashboard.';
@@ -119,11 +138,11 @@ export default function SessionAttendance() {
 
     (async () => {
       try {
-        await authenticateFace(user.uid, videoRef.current);
+        const result = await authenticateFace(user.uid, videoRef.current);
         if (cancelled) return;
         stopCamera(streamRef.current);
         streamRef.current = null;
-        setFaceResult({ verified: true });
+        setFaceResult({ verified: true, distance: result.distance });
         await markAttendance(id, user.uid, true, true);
         if (!cancelled) setStep('done');
       } catch (err) {
@@ -142,6 +161,49 @@ export default function SessionAttendance() {
       streamRef.current = null;
     };
   }, [step, faceScanning, id, user?.uid]);
+
+  useEffect(() => {
+    if (step !== 'face' || !faceScanning) return;
+    let cancelled = false;
+    let timer = null;
+    const poll = async () => {
+      if (cancelled || !videoRef.current) return;
+      const result = await probeFrame(videoRef.current);
+      if (!cancelled) {
+        setScanStatus(scanStatusText(result));
+      }
+      timer = setTimeout(poll, 400);
+    };
+    poll();
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, [step, faceScanning]);
+
+  function scanStatusText(result) {
+    switch (result?.status) {
+      case 'no-face':
+        return 'No face detected — center your face in the oval.';
+      case 'too-small':
+        if (result.boxWidth != null) {
+          return `Face too small (${Math.round(result.boxWidth)}px, need ≥ ${Math.round(
+            result.minWidth
+          )}px) — move closer.`;
+        }
+        return 'Face too small — move closer to the camera.';
+      case 'blurry':
+        return 'Blurry — hold still and improve the lighting.';
+      case 'loading':
+        return 'Loading face recognition models...';
+      case 'good':
+        return '';
+      case 'error':
+        return 'Scanning...';
+      default:
+        return '';
+    }
+  }
 
   if (authLoading) return <Loading />;
 
@@ -204,7 +266,32 @@ export default function SessionAttendance() {
                 Step 2 · Verify your face
               </p>
 
-              {faceScanning ? (
+              {modelProgress !== null ? (
+                <div className={styles.faceBox} role="status" aria-live="polite">
+                  <div className={styles.loadScrim}>
+                    <span className={styles.spinner} aria-hidden="true" />
+                    <p className={styles.scanText}>
+                      Loading face recognition models...
+                    </p>
+                    <div
+                      className={styles.progressTrack}
+                      role="progressbar"
+                      aria-valuenow={modelProgress}
+                      aria-valuemin="0"
+                      aria-valuemax="100"
+                    >
+                      <div
+                        className={styles.progressBar}
+                        style={{ width: `${modelProgress}%` }}
+                      />
+                    </div>
+                    <p className={styles.progressPct}>{modelProgress}%</p>
+                    <p className={styles.scanHint}>
+                      One-time setup, only on the first scan.
+                    </p>
+                  </div>
+                </div>
+              ) : faceScanning ? (
                 <div className={styles.faceBox} role="status" aria-live="polite">
                   <video
                     ref={videoRef}
@@ -218,9 +305,15 @@ export default function SessionAttendance() {
                     <span className={styles.spinner} aria-hidden="true" />
                     <span className={styles.scanText}>Scanning your face...</span>
                   </div>
-                  <p className={styles.scanHint}>
-                    Keep your face inside the oval and stay still.
-                  </p>
+                  {scanStatus ? (
+                    <p className={styles.scanHint} style={{ color: '#d97706' }}>
+                      {scanStatus}
+                    </p>
+                  ) : (
+                    <p className={styles.scanHint}>
+                      Keep your face inside the oval and stay still.
+                    </p>
+                  )}
                 </div>
               ) : (
                 <>
@@ -259,6 +352,16 @@ export default function SessionAttendance() {
               <h2 style={{ color: 'var(--brand-600)', marginBottom: 10 }}>
                 Attendance Marked
               </h2>
+              <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+                {userData?.name || user?.displayName || 'Student'} — your face
+                matched the enrolled profile.
+              </p>
+              {typeof faceResult?.distance === 'number' && (
+                <p style={{ color: 'var(--ink-3)', fontSize: '0.85rem', marginTop: 4 }}>
+                  Face match distance: {faceResult.distance.toFixed(2)} (threshold{' '}
+                  {process.env.NEXT_PUBLIC_FACE_THRESHOLD || 0.6})
+                </p>
+              )}
               <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
                 {geoResult && `Location: ${geoResult.distance}m from class`}
                 {geoResult && faceResult && ' · '}

@@ -32,10 +32,6 @@ export const viewport = {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" className={`${sans.variable} ${display.variable}`}>
-      <head>
-        <link rel="preload" href="/vendor/face-api.min.js" as="script" />
-        <script src="/vendor/face-api.min.js" async />
-      </head>
       <body>
         <AuthProvider>
           <Navbar />
