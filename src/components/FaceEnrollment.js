@@ -9,6 +9,7 @@ import {
   drawDetections,
   probeFrame,
 } from '@/lib/face';
+import { friendlyError } from '@/lib/errors';
 import styles from './FaceEnrollment.module.css';
 
 const SAMPLES = 3;
@@ -49,7 +50,7 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
       } catch (err) {
         if (!cancelled) {
           setStage('error');
-          setMessage(err.message || 'Could not start camera.');
+          setMessage(friendlyError(err, 'Could not start the camera.'));
         }
       }
     })();
@@ -102,7 +103,7 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
       if (onComplete) onComplete();
     } catch (err) {
       setStage('ready');
-      setMessage(err.message || 'Face capture failed. Please try again.');
+      setMessage(friendlyError(err, 'Face capture failed. Please try again.'));
     }
   }
 
@@ -116,7 +117,7 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
         setStage('ready');
       } catch (err) {
         setStage('error');
-        setMessage(err.message || 'Could not start camera.');
+        setMessage(friendlyError(err, 'Could not start the camera.'));
       }
     })();
   }

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { login, signInWithGoogle, getUserData } from '@/lib/auth';
+import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 
@@ -35,7 +36,7 @@ export default function StudentLogin() {
       }
       router.push('/dashboard/student');
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err, 'Unable to sign in. Please try again.'));
     }
   }
 
@@ -86,7 +87,7 @@ export default function StudentLogin() {
             await signInWithGoogle('student');
             router.push('/dashboard/student');
           } catch (err) {
-            setError(err.message);
+            setError(friendlyError(err, 'Could not sign in with Google. Please try again.'));
           }
         }}
         className="oauth-btn"

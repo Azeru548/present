@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { getAllSessions, getStudentAttendanceIds } from '@/lib/firestore';
+import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 import styles from './page.module.css';
@@ -64,7 +65,7 @@ export default function StudentAttendanceHistory() {
       });
       setSessions(filtered.map((s) => ({ ...s, status: sessionStatus(s, marked.has(s.id)) })));
     } catch (err) {
-      setError(err.message || 'Failed to load attendance history.');
+      setError(friendlyError(err, 'Could not load your attendance history. Check your connection and try again.'));
     } finally {
       setLoading(false);
     }

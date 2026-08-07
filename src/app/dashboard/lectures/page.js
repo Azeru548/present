@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { getActiveSessions, getStudentAttendanceIds } from '@/lib/firestore';
 import { getCurrentPosition, getDistance } from '@/lib/geo';
+import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 import styles from './page.module.css';
@@ -42,7 +43,7 @@ export default function LecturesPage() {
       setMarkedIds(marked);
       setSessions(filterSessions(data));
     } catch (err) {
-      setError(err.message || 'Failed to load lectures.');
+      setError(friendlyError(err, 'Could not load lectures. Check your connection and try again.'));
     } finally {
       setLoading(false);
     }

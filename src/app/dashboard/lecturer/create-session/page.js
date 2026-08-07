@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { createSession } from '@/lib/firestore';
 import { getCurrentPosition } from '@/lib/geo';
+import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
@@ -53,7 +54,12 @@ export default function CreateSession() {
       setSuccess('Session created! Redirecting...');
       setTimeout(() => router.push('/dashboard/lecturer'), 1500);
     } catch (err) {
-      setError(err.message || 'Failed to create session. Check location permissions.');
+      setError(
+        friendlyError(
+          err,
+          'Could not create the session. Check your location permission and connection, then try again.'
+        )
+      );
     } finally {
       setSubmitting(false);
     }

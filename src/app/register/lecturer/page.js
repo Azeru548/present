@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
+import { friendlyError } from '@/lib/errors';
 import Icon from '@/components/Icon';
 
 export default function LecturerRegister() {
@@ -19,7 +20,7 @@ export default function LecturerRegister() {
       await registerWithRole(email, password, name, 'lecturer');
       router.push('/dashboard/lecturer');
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err, 'Could not create your account. Please try again.'));
     }
   }
 

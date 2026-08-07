@@ -5,6 +5,7 @@ import { useAuth } from '@/context/AuthContext';
 import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore';
 import { getCurrentPosition, isWithinRange } from '@/lib/geo';
 import { authenticateFace, loadModels, probeFrame, stopCamera } from '@/lib/face';
+import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 import styles from './page.module.css';
@@ -43,34 +44,41 @@ export default function SessionAttendance() {
   }, [id, user, role, authLoading]);
 
   async function loadSession() {
-    const s = await getSession(id);
-    if (!s || !s.isActive) {
-      setError('This session is not active or does not exist.');
+    try {
+      const s = await getSession(id);
+      if (!s || !s.isActive) {
+        setError('This session is not active or does not exist.');
+        setStep('error');
+        return;
+      }
+      setSession(s);
+
+      const { level, department } = userData || {};
+      const requiresProfile = (s.level && !level) || (s.department && !department);
+      if (requiresProfile) {
+        setDeniedReason('profile');
+        setStep('denied');
+        return;
+      }
+      if ((s.level && s.level !== level) || (s.department && s.department !== department)) {
+        setDeniedReason('mismatch');
+        setStep('denied');
+        return;
+      }
+
+      const already = await hasMarkedAttendance(id, user.uid);
+      if (already) {
+        setStep('done');
+        return;
+      }
+
+      setStep('geo');
+    } catch (err) {
+      setError(
+        friendlyError(err, 'Could not load this session. Check your connection and try again.')
+      );
       setStep('error');
-      return;
     }
-    setSession(s);
-
-    const { level, department } = userData || {};
-    const requiresProfile = (s.level && !level) || (s.department && !department);
-    if (requiresProfile) {
-      setDeniedReason('profile');
-      setStep('denied');
-      return;
-    }
-    if ((s.level && s.level !== level) || (s.department && s.department !== department)) {
-      setDeniedReason('mismatch');
-      setStep('denied');
-      return;
-    }
-
-    const already = await hasMarkedAttendance(id, user.uid);
-    if (already) {
-      setStep('done');
-      return;
-    }
-
-    setStep('geo');
   }
 
   async function handleGeoCheck() {

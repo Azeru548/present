@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
+import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import FaceEnrollment from '@/components/FaceEnrollment';
 import Icon from '@/components/Icon';
@@ -29,7 +30,7 @@ export default function StudentRegister() {
       setUserId(user.uid);
       setStep('enroll');
     } catch (err) {
-      setError(err.message);
+      setError(friendlyError(err, 'Could not create your account. Please try again.'));
     }
   }
 

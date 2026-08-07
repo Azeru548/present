@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { updateUserProfile } from '@/lib/auth';
+import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 import FaceEnrollment from '@/components/FaceEnrollment';
@@ -56,7 +57,7 @@ export default function StudentDashboard() {
         setProfileOpen(false);
       }, 1500);
     } catch (err) {
-      setProfileMsg(err.message || 'Could not save profile.');
+      setProfileMsg(friendlyError(err, 'Could not save your profile.'));
     } finally {
       setProfileSaving(false);
     }
