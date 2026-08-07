@@ -1,0 +1,39 @@
+.back {
+  position: fixed;
+  left: 20px;
+  bottom: 20px;
+  z-index: 60;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  box-shadow: var(--shadow-md);
+  color: var(--ink);
+  font-family: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    transform 0.15s var(--ease),
+    box-shadow 0.2s var(--ease),
+    background 0.15s var(--ease);
+}
+.back:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+  background: var(--surface-2);
+}
+.back:active {
+  transform: translateY(0) scale(0.97);
+}
+
+@media (max-width: 640px) {
+  .back {
+    left: 14px;
+    bottom: 14px;
+    padding: 8px 14px;
+  }
+}

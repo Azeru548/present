@@ -62,6 +62,9 @@ export default function Navbar() {
             <span className={styles.greeting}>
               {userData?.name} <b>({role})</b>
             </span>
+            <Link href="/" className={styles.link} onClick={closeMenu}>
+              Home
+            </Link>
             <Link href={dashboardHref} className={styles.link} onClick={closeMenu}>
               Dashboard
             </Link>

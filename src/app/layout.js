@@ -2,6 +2,7 @@ import { Source_Sans_3, Source_Serif_4 } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
+import BackButton from '@/components/BackButton';
 import Footer from '@/components/Footer';
 
 const sans = Source_Sans_3({
@@ -35,6 +36,7 @@ export default function RootLayout({ children }) {
       <body>
         <AuthProvider>
           <Navbar />
+          <BackButton />
           <main>{children}</main>
         </AuthProvider>
         <Footer />
