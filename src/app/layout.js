@@ -3,6 +3,7 @@ import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
 import BackButton from '@/components/BackButton';
+import PwaRegister from '@/components/PwaRegister';
 import Footer from '@/components/Footer';
 
 const sans = Source_Sans_3({
@@ -23,11 +24,23 @@ export const metadata = {
   title: 'Present — Attendance, verified',
   description:
     'Geo-location and facial recognition verified attendance for classrooms. No proxies, no buddy check-ins, no paperwork.',
+  manifest: '/manifest.webmanifest',
+  icons: {
+    icon: [{ url: '/icons/icon-192.png', sizes: '192x192', type: 'image/png' }],
+    apple: [{ url: '/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
+  },
 };
 
 export const viewport = {
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0f172a',
+  appleWebApp: {
+    capable: true,
+    title: 'Present',
+    statusBarStyle: 'default',
+  },
 };
 
 export default function RootLayout({ children }) {
@@ -39,6 +52,7 @@ export default function RootLayout({ children }) {
           <BackButton />
           <main>{children}</main>
         </AuthProvider>
+        <PwaRegister />
         <Footer />
       </body>
     </html>
