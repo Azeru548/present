@@ -1,4 +1,4 @@
-const CACHE = 'present-v1';
+const CACHE = 'present-v2';
 
 const PRECACHE_URLS = [
   '/vendor/face_landmarker.task',
