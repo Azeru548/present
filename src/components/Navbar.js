@@ -1,14 +1,12 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { logout } from '@/lib/auth';
 import styles from './Navbar.module.css';
 
 export default function Navbar() {
   const { user, role, userData } = useAuth();
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
@@ -20,9 +18,16 @@ export default function Navbar() {
   }, []);
 
   async function handleLogout() {
-    await logout();
-    // Wait for auth state to clear before redirecting
-    router.push('/login');
+    try {
+      await logout();
+    } catch (err) {
+      // Sign-out failed — stay put instead of bouncing a still-signed-in
+      // user to the login page only to be redirected straight back.
+      return;
+    }
+    // A hard navigation guarantees the protected page is left behind even if
+    // the client router is interrupted while the auth state clears.
+    window.location.assign('/login');
   }
 
   function closeMenu() {
