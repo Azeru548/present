@@ -1,4 +1,4 @@
-import { Source_Sans_3, Source_Serif_4 } from 'next/font/google';
+import { Bricolage_Grotesque, IBM_Plex_Sans, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { AuthProvider } from '@/context/AuthContext';
 import Navbar from '@/components/Navbar';
@@ -6,18 +6,25 @@ import BackButton from '@/components/BackButton';
 import PwaRegister from '@/components/PwaRegister';
 import Footer from '@/components/Footer';
 
-const sans = Source_Sans_3({
+const sans = IBM_Plex_Sans({
   subsets: ['latin'],
   variable: '--font-sans',
   display: 'swap',
   weight: ['400', '500', '600', '700'],
 });
 
-const display = Source_Serif_4({
+const display = Bricolage_Grotesque({
   subsets: ['latin'],
   variable: '--font-display',
   display: 'swap',
   weight: ['500', '600', '700'],
+});
+
+const mono = IBM_Plex_Mono({
+  subsets: ['latin'],
+  variable: '--font-mono',
+  display: 'swap',
+  weight: ['400', '500', '600', '700'],
 });
 
 export const metadata = {
@@ -35,7 +42,7 @@ export const viewport = {
   width: 'device-width',
   initialScale: 1,
   viewportFit: 'cover',
-  themeColor: '#0f172a',
+  themeColor: '#0b2c1f',
   appleWebApp: {
     capable: true,
     title: 'Present',
@@ -45,7 +52,7 @@ export const viewport = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${sans.variable} ${display.variable}`}>
+    <html lang="en" className={`${sans.variable} ${display.variable} ${mono.variable}`}>
       <body>
         <AuthProvider>
           <Navbar />

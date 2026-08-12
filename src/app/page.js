@@ -104,6 +104,27 @@ function IconBook() {
     </svg>
   );
 }
+function IconReticle(props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="square"
+      strokeLinejoin="miter"
+      aria-hidden="true"
+      {...props}
+    >
+      <ellipse cx="12" cy="12" rx="9" ry="6.5" />
+      <path d="M12 3.5v2.4M9 3.5h6" />
+      <path d="M12 18.1v2.4M9 20.5h6" />
+      <path d="M3.5 12h2.4M3.5 9v6" />
+      <path d="M18.1 12h2.4M20.5 9v6" />
+      <path d="M10.5 10v4M12 12h.01" />
+    </svg>
+  );
+}
 
 const features = [
   {
@@ -332,6 +353,10 @@ export default function Home() {
                   : `translate3d(0, ${heroParallax * 0.35}px, 0)`,
               }}
             >
+              <p className={`${styles.kicker} ${styles.reveal}`} style={{ '--delay': '30ms' }}>
+                The register, verified — by location and face
+              </p>
+
               <h1 className={`${styles.title} ${styles.reveal}`} style={{ '--delay': '60ms' }}>
                 Attendance that holds up under scrutiny.
               </h1>
@@ -403,6 +428,9 @@ export default function Home() {
                       }
                 }
               >
+                <span className={styles.previewReticleBg} aria-hidden="true">
+                  <IconReticle />
+                </span>
                 <div className={styles.previewShine} />
                 <div className={styles.previewBar}>
                   <span className={styles.previewUrl}>present · session view</span>
@@ -417,6 +445,10 @@ export default function Home() {
                       <p className={styles.previewCourse}>CS301 · Data Structures</p>
                       <p className={styles.previewTitle}>Lecture session</p>
                     </div>
+                    <span className={styles.previewRoom}>
+                      <IconMapPin />
+                      Block B · Room 204
+                    </span>
                   </div>
 
                   <div className={`${styles.previewStep} ${styles.stepAnim1}`}>
@@ -432,7 +464,9 @@ export default function Home() {
                     </span>
                   </div>
 
-                  <div className={`${styles.previewStep} ${styles.stepAnim2}`}>
+                  <span className={styles.previewStepConnect} aria-hidden="true" />
+
+                  <div className={`${styles.previewStep} ${styles.previewStepIdentity} ${styles.stepAnim2}`}>
                     <span className={styles.previewStepIcon}>
                       <IconFace />
                     </span>
@@ -446,8 +480,7 @@ export default function Home() {
                   </div>
 
                   <div className={`${styles.previewSuccess} ${styles.stepAnim3}`}>
-                    <IconCheck />
-                    <span>Attendance recorded</span>
+                    <span className={styles.stamp}>Present</span>
                   </div>
                 </div>
               </div>

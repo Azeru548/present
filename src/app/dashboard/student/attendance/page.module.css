@@ -32,13 +32,16 @@
 }
 
 .statValue {
+  font-family: var(--font-display), 'Segoe UI', system-ui, sans-serif;
   font-size: 1.6rem;
-  font-weight: 800;
+  font-weight: 600;
   color: var(--ink);
   line-height: 1.1;
+  font-variant-numeric: tabular-nums;
 }
 
 .statLabel {
+  font-family: var(--font-sans), 'Segoe UI', system-ui, sans-serif;
   font-size: 0.78rem;
   font-weight: 600;
   letter-spacing: 0.05em;
@@ -75,7 +78,7 @@
   top: 0;
   bottom: 0;
   width: 4px;
-  background: linear-gradient(180deg, var(--brand-400), var(--brand-600));
+  background: linear-gradient(180deg, var(--brand-mid), var(--brand));
   opacity: 0;
   transition: opacity 0.22s var(--ease);
 }
@@ -121,27 +124,27 @@
 }
 
 .present {
-  color: var(--brand-700);
-  background: var(--brand-100);
-  border: 1px solid var(--brand-200);
+  color: var(--positive);
+  background: var(--positive-soft);
+  border: 1px solid var(--positive-line);
 }
 
 .missed {
-  color: #b42318;
-  background: #fef3f2;
-  border: 1px solid #fecdca;
+  color: var(--danger);
+  background: var(--danger-soft);
+  border: 1px solid var(--danger-line);
 }
 
 .ongoing {
-  color: var(--ink-2);
-  background: var(--surface-2);
-  border: 1px solid var(--line);
+  color: var(--warning);
+  background: var(--warning-soft);
+  border: 1px solid var(--warning-line);
 }
 
 .markLink {
   font-size: 0.82rem;
   font-weight: 600;
-  color: var(--brand-600);
+  color: var(--brand-mid);
   text-decoration: none;
 }
 

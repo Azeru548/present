@@ -1,5 +1,5 @@
 'use client';
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore';
@@ -10,13 +10,7 @@ import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
-const checkStyle = {
-  display: 'inline-flex',
-  alignItems: 'center',
-  gap: 8,
-  fontWeight: 600,
-  marginBottom: 6,
-};
+const verificationSteps = ['Location', 'Identity', 'Recorded'];
 
 export default function SessionAttendance() {
   const { id } = useParams();
@@ -229,6 +223,9 @@ export default function SessionAttendance() {
 
   if (authLoading) return <Loading />;
 
+  const stepIndex =
+    step === 'geo' ? 1 : step === 'face' ? 2 : step === 'done' ? 3 : 0;
+
   return (
     <div className="container">
       <div className="card animate-pop" style={{ maxWidth: 520, margin: '40px auto' }}>
@@ -243,60 +240,62 @@ export default function SessionAttendance() {
 
       {session && step !== 'error' && (
         <>
-          <h1 className="page-title">{session.title}</h1>
-          <p style={{ color: 'var(--ink-2)', marginBottom: 4 }}>
-            {session.course}
-          </p>
+          <h1 className={styles.sessionTitle}>{session.title}</h1>
+          <p className={styles.sessionCourse}>{session.course}</p>
           {(session.level || session.department) && (
-            <span
-              style={{
-                display: 'inline-block',
-                fontSize: '0.72rem',
-                fontWeight: 700,
-                letterSpacing: '0.05em',
-                textTransform: 'uppercase',
-                color: 'var(--brand-700)',
-                background: 'var(--brand-100)',
-                border: '1px solid var(--brand-200)',
-                padding: '4px 12px',
-                borderRadius: 'var(--radius-full)',
-                marginBottom: 16,
-              }}
-            >
+            <span className={styles.sessionTag}>
               {[session.level && `${session.level} Level`, session.department]
                 .filter(Boolean)
                 .join(' · ')}
             </span>
           )}
 
+          {stepIndex > 0 && (
+            <div className={styles.stepper} aria-label="Verification progress">
+              {verificationSteps.map((label, i) => {
+                const n = i + 1;
+                const isDone = n < stepIndex;
+                const isActive = n === stepIndex;
+                return (
+                  <Fragment key={label}>
+                    {i > 0 && (
+                      <span
+                        className={`${styles.stepLine} ${isDone ? styles.stepLineDone : ''}`}
+                        aria-hidden="true"
+                      />
+                    )}
+                    <div
+                      className={`${styles.step} ${isDone ? styles.stepDone : ''} ${
+                        isActive ? styles.stepActive : ''
+                      }`}
+                    >
+                      <span className={styles.stepIdx}>
+                        {isDone ? (
+                          <Icon name="check" size={12} strokeWidth={2.5} />
+                        ) : (
+                          n
+                        )}
+                      </span>
+                      <span className={styles.stepLabel}>{label}</span>
+                    </div>
+                  </Fragment>
+                );
+              })}
+            </div>
+          )}
+
           {step === 'denied' && (
-            <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
-              <div
-                style={{
-                  width: 76,
-                  height: 76,
-                  margin: '0 auto 18px',
-                  borderRadius: '50%',
-                  background: '#fef3f2',
-                  border: '1px solid #fecdca',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  color: '#b42318',
-                  animation: 'popIn 0.5s cubic-bezier(.4,0,.2,1)',
-                }}
-                aria-hidden="true"
-              >
-                🚫
-              </div>
-              <h2 style={{ marginBottom: 10 }}>
+            <div className={styles.stateWrap}>
+              <span className={styles.stateIcon} aria-hidden="true">
+                <Icon name="shield" size={30} strokeWidth={1.5} />
+              </span>
+              <h2 className={styles.stateTitle}>
                 {deniedReason === 'profile'
-                  ? 'Complete Your Profile First'
-                  : 'You Are Not Eligible for This Session'}
+                  ? 'Complete your profile first'
+                  : 'You are not eligible for this session'}
               </h2>
               {deniedReason === 'profile' ? (
-                <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+                <p className={styles.stateText}>
                   This session is for{' '}
                   <b>
                     {[session.level && `${session.level} Level`, session.department]
@@ -307,7 +306,7 @@ export default function SessionAttendance() {
                   attendance here.
                 </p>
               ) : (
-                <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+                <p className={styles.stateText}>
                   This session is for{' '}
                   <b>
                     {[session.level && `${session.level} Level`, session.department]
@@ -322,9 +321,7 @@ export default function SessionAttendance() {
                   attendance.
                 </p>
               )}
-              <div
-                style={{ marginTop: 20, display: 'flex', gap: 10, justifyContent: 'center' }}
-              >
+              <div className={styles.stateActions}>
                 {deniedReason === 'profile' ? (
                   <button
                     className="btn-primary"
@@ -344,30 +341,33 @@ export default function SessionAttendance() {
             </div>
           )}
           {session.locationNote && (
-            <p
-              style={{
-                marginBottom: 20,
-                color: 'var(--brand-600)',
-                fontWeight: 600,
-                fontSize: '0.9rem',
-              }}
-            >
-              📍 {session.locationNote}
+            <p className={styles.locationNote}>
+              <Icon name="pin" size={14} />
+              {session.locationNote}
             </p>
           )}
 
           {step === 'geo' && (
             <>
-              <p style={checkStyle}>
-                <span aria-hidden="true">📍</span>
-                Step 1 · Verify your location
-              </p>
-              <p style={{ marginBottom: 18, color: 'var(--ink-2)', fontSize: '0.92rem' }}>
-                Confirm you are within {session.location.radius}m of the class to
-                proceed.
-              </p>
+              <div className={styles.verifyIntro}>
+                <span className={styles.verifyIcon} aria-hidden="true">
+                  <Icon name="pin" size={18} />
+                </span>
+                <div>
+                  <p className={styles.verifyLabel}>Step 1 · Verify your location</p>
+                  <p className={styles.verifyText}>
+                    Confirm you are within{' '}
+                    <b>{session.location.radius}m</b> of the class to proceed.
+                  </p>
+                </div>
+              </div>
               {error && <p className="error">{error}</p>}
-              <button className="btn-primary" onClick={handleGeoCheck}>
+              <button
+                className="btn-primary"
+                style={{ width: '100%' }}
+                onClick={handleGeoCheck}
+              >
+                <Icon name="navigate" size={16} />
                 Verify Location
               </button>
             </>
@@ -375,14 +375,23 @@ export default function SessionAttendance() {
 
           {step === 'face' && (
             <>
-              <p style={{ ...checkStyle, color: 'var(--brand-600)' }}>
-                <span aria-hidden="true">✅</span>
+              <div className={styles.chipGeo}>
+                <Icon name="check" size={12} strokeWidth={2.5} />
                 Location verified — {geoResult?.distance}m from class
-              </p>
-              <p style={checkStyle}>
-                <span aria-hidden="true">😀</span>
-                Step 2 · Verify your face
-              </p>
+              </div>
+
+              <div className={styles.verifyIntro}>
+                <span className={styles.verifyIcon} aria-hidden="true">
+                  <Icon name="face" size={18} />
+                </span>
+                <div>
+                  <p className={styles.verifyLabel}>Step 2 · Verify your face</p>
+                  <p className={styles.verifyText}>
+                    When you start the scan, a camera window will open. Center
+                    your face in the reticle and keep still.
+                  </p>
+                </div>
+              </div>
 
               {modelProgress !== null ? (
                 <div className={styles.faceBox} role="status" aria-live="polite">
@@ -404,7 +413,7 @@ export default function SessionAttendance() {
                       />
                     </div>
                     <p className={styles.progressPct}>{modelProgress}%</p>
-                    <p className={styles.scanHint}>
+                    <p className={styles.scrimHint}>
                       One-time setup, only on the first scan.
                     </p>
                   </div>
@@ -418,29 +427,37 @@ export default function SessionAttendance() {
                     muted
                     playsInline
                   />
-                  <span className={styles.scanGuide} aria-hidden="true" />
+                  <div className={styles.guide} aria-hidden="true">
+                    <div className={styles.reticle}>
+                      <span className={`${styles.tick} ${styles.tickTL}`} />
+                      <span className={`${styles.tick} ${styles.tickTR}`} />
+                      <span className={`${styles.tick} ${styles.tickBL}`} />
+                      <span className={`${styles.tick} ${styles.tickBR}`} />
+                      <div className={styles.guideOval} />
+                      <div className={styles.scanline} />
+                    </div>
+                  </div>
                   <div className={styles.scanPill}>
-                    <span className={styles.spinner} aria-hidden="true" />
+                    <span className={styles.spinnerSmall} aria-hidden="true" />
                     <span className={styles.scanText}>Scanning your face...</span>
                   </div>
                   {scanStatus ? (
-                    <p className={styles.scanHint} style={{ color: '#d97706' }}>
-                      {scanStatus}
-                    </p>
+                    <p className={styles.scanOverlayWarn}>{scanStatus}</p>
                   ) : (
-                    <p className={styles.scanHint}>
-                      Keep your face inside the oval and stay still.
+                    <p className={styles.scanOverlay}>
+                      Keep your face inside the reticle and stay still.
                     </p>
                   )}
                 </div>
               ) : (
                 <>
-                  <p style={{ marginBottom: 18, color: 'var(--ink-2)', fontSize: '0.92rem' }}>
-                    When you start the scan, a camera window will open. Center
-                    your face in the oval and keep still.
-                  </p>
                   {error && <p className="error">{error}</p>}
-                  <button className="btn-success" onClick={handleFaceCheck}>
+                  <button
+                    className="btn-success"
+                    style={{ width: '100%' }}
+                    onClick={handleFaceCheck}
+                  >
+                    <Icon name="scan" size={16} />
                     Start Face Scan
                   </button>
                 </>
@@ -449,50 +466,30 @@ export default function SessionAttendance() {
           )}
 
           {step === 'done' && (
-            <div style={{ textAlign: 'center', padding: '12px 0 4px' }}>
-              <div
-                style={{
-                  width: 76,
-                  height: 76,
-                  margin: '0 auto 18px',
-                  borderRadius: '50%',
-                  background: 'var(--brand-100)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  animation: 'popIn 0.5s cubic-bezier(.4,0,.2,1)',
-                }}
-                aria-hidden="true"
-              >
-                🎉
-              </div>
-              <h2 style={{ color: 'var(--brand-600)', marginBottom: 10 }}>
-                Attendance Marked
-              </h2>
-              <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
+            <div className={styles.doneWrap}>
+              <div className={styles.doneStamp}>Present</div>
+              <h2 className={styles.doneTitle}>Attendance marked</h2>
+              <p className={styles.doneText}>
                 {userData?.name || user?.displayName || 'Student'} — your face
                 matched the enrolled profile.
               </p>
-              {typeof faceResult?.distance === 'number' && (
-                <p style={{ color: 'var(--ink-3)', fontSize: '0.85rem', marginTop: 4 }}>
-                  Face match distance: {faceResult.distance.toFixed(2)} (threshold{' '}
-                  {process.env.NEXT_PUBLIC_FACE_THRESHOLD || 0.6})
-                </p>
-              )}
-              <p style={{ color: 'var(--ink-2)', fontSize: '0.95rem' }}>
-                {geoResult && `Location: ${geoResult.distance}m from class`}
-                {geoResult && faceResult && ' · '}
-                {faceResult && 'Face verified successfully'}
-              </p>
-              <p style={{ color: 'var(--ink-3)', marginTop: 10, fontSize: '0.88rem' }}>
-                You have successfully marked attendance for this session.
-              </p>
+              <div className={styles.doneMeta}>
+                {typeof faceResult?.distance === 'number' && (
+                  <span>
+                    Face match distance {faceResult.distance.toFixed(2)} ·
+                    threshold {process.env.NEXT_PUBLIC_FACE_THRESHOLD || 0.6}
+                  </span>
+                )}
+                {geoResult && (
+                  <span>Location · {geoResult.distance}m from class</span>
+                )}
+              </div>
               <button
                 className="btn-primary"
-                style={{ marginTop: 20 }}
+                style={{ width: '100%' }}
                 onClick={() => router.push('/dashboard/lectures')}
               >
+                <Icon name="chevronRight" size={16} />
                 Back to Lectures
               </button>
             </div>

@@ -134,7 +134,14 @@ export default function FaceEnrollment({ userId, onComplete, onCancel }) {
         />
         <canvas ref={canvasRef} className={styles.canvas} />
         <div className={styles.guide} aria-hidden="true">
-          <div className={styles.guideOval} />
+          <div className={styles.reticle}>
+            <span className={`${styles.tick} ${styles.tickTL}`} />
+            <span className={`${styles.tick} ${styles.tickTR}`} />
+            <span className={`${styles.tick} ${styles.tickBL}`} />
+            <span className={`${styles.tick} ${styles.tickBR}`} />
+            <div className={styles.guideOval} />
+            <div className={styles.scanline} />
+          </div>
         </div>
         {stage === 'starting' && (
           <div className={styles.scrim}>

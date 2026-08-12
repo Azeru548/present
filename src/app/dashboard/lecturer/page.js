@@ -6,6 +6,11 @@ import { useAuth } from '@/context/AuthContext';
 import { getLecturerSessions, closeSession } from '@/lib/firestore';
 import AttendanceTable from '@/components/AttendanceTable';
 import Loading from '@/components/Loading';
+import PageHeader from '@/components/PageHeader';
+import EmptyState from '@/components/EmptyState';
+import SessionRow from '@/components/SessionRow';
+import StatusBadge from '@/components/StatusBadge';
+import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
 export default function LecturerDashboard() {
@@ -87,69 +92,67 @@ export default function LecturerDashboard() {
 
   return (
     <div className="container">
-      <div className={styles.wrapper}>
-        <div className={`${styles.header} animate-rise`}>
-        <h1 className="page-title" style={{ marginBottom: 0 }}>
-          Lecturer Dashboard
-        </h1>
-        <Link href="/dashboard/lecturer/create-session" className="btn-primary">
-          + Create Session
-        </Link>
-      </div>
+      <PageHeader
+        title="Lecturer Dashboard"
+        sub={sessions.length ? `${sessions.length} session${sessions.length === 1 ? '' : 's'} on record` : undefined}
+        actions={[
+          <Link key="create" href="/dashboard/lecturer/create-session" className="btn-primary">
+            <Icon name="plus" size={16} />
+            Create Session
+          </Link>,
+        ]}
+      />
 
       {sessions.length === 0 ? (
-        <div className="card animate-rise">
-          <p className={styles.muted}>No sessions yet. Create your first one!</p>
-        </div>
+        <EmptyState
+          icon="plus"
+          title="No sessions yet"
+          text="Create your first attendance session and set its geo-radius and window here."
+        />
       ) : (
         <div className={styles.grid}>
-          <div className="card animate-rise" style={{ flex: 1 }}>
+          <section className={`card animate-rise ${styles.panel}`} aria-label="Your sessions">
             <h2 className="subtitle">Your Sessions</h2>
-            {sessions.map((s, i) => (
-              <div
-                key={s.id}
-                className={`${styles.sessionCard} ${selectedSession?.id === s.id ? styles.active : ''}`}
-                style={{ animationDelay: `${i * 70}ms` }}
-                onClick={() => viewAttendance(s)}
-              >
-                <div>
-                  <strong>{s.title}</strong>
-                  <span className={styles.course}>
-                    {s.course}
-                    {(s.level || s.department) &&
-                      ` · ${[s.level && `${s.level} Level`, s.department]
-                        .filter(Boolean)
-                        .join(' · ')}`}
-                  </span>
-                </div>
-                <span className={s.isActive ? styles.badgeActive : styles.badgeClosed}>
-                  {s.isActive ? 'Active' : 'Closed'}
-                </span>
-              </div>
-            ))}
-          </div>
+            <div className={styles.sessionList}>
+              {sessions.map((s, i) => {
+                const tags = [
+                  s.level && `${s.level} Level`,
+                  s.department,
+                ].filter(Boolean);
+                return (
+                  <SessionRow
+                    key={s.id}
+                    title={s.title}
+                    meta={s.course}
+                    tags={tags}
+                    active={selectedSession?.id === s.id}
+                    onClick={() => viewAttendance(s)}
+                    trailing={
+                      <StatusBadge tone={s.isActive ? 'active' : 'closed'}>
+                        {s.isActive ? 'Active' : 'Closed'}
+                      </StatusBadge>
+                    }
+                    delay={i * 50}
+                  />
+                );
+              })}
+            </div>
+          </section>
 
-          <div className="card animate-rise" style={{ flex: 2 }}>
-            <div
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                flexWrap: 'wrap',
-                gap: 10,
-              }}
-            >
-              <h2 className="subtitle">
+          <section className={`card animate-rise ${styles.panel}`} style={{ flex: 2 }}>
+            <div className={styles.panelHeader}>
+              <h2 className="subtitle" style={{ marginBottom: 0 }}>
                 {selectedSession
                   ? `Attendance — ${selectedSession.title}`
-                  : 'Select a session'}
+                  : 'Attendance'}
               </h2>
               {selectedSession && attendance.length > 0 && (
                 <button
-                  className="btn-primary"
+                  className="btn-ghost"
                   style={{ padding: '8px 14px' }}
                   onClick={exportCsv}
                 >
+                  <Icon name="download" size={16} />
                   Download CSV
                 </button>
               )}
@@ -168,12 +171,16 @@ export default function LecturerDashboard() {
             {selectedSession ? (
               <AttendanceTable records={attendance} loading={attLoading} />
             ) : (
-              <p className={styles.muted}>Click a session to view attendance.</p>
+              <div className={styles.selectHint}>
+                <p>Select a session to view its attendance.</p>
+                <p className={styles.selectHintSub}>
+                  Rows appear here in real time as students verify.
+                </p>
+              </div>
             )}
-          </div>
+          </section>
         </div>
       )}
-      </div>
     </div>
   );
 }

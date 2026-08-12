@@ -60,6 +60,130 @@ const ICONS = {
       <path d="M16 15l2 2 4-4" />
     </>
   ),
+  shield: (
+    <>
+      <path d="M12 3l8 3.5v5.5c0 5-3.5 8.5-8 9.5-4.5-1-8-4.5-8-9.5V6.5L12 3z" />
+      <path d="M9 12l2 2 4-4" />
+    </>
+  ),
+  users: (
+    <>
+      <circle cx="9" cy="8" r="3" />
+      <path d="M3 19c0-3 2.5-5 6-5s6 2 6 5" />
+      <circle cx="17" cy="9" r="2.5" />
+      <path d="M21 19c0-2.5-1.5-4-4-4" />
+    </>
+  ),
+  clock: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 7v5l3 2" />
+    </>
+  ),
+  x: (
+    <>
+      <path d="M6 6l12 12M18 6L6 18" />
+    </>
+  ),
+  alert: (
+    <>
+      <path d="M12 4l9 16H3l9-16z" />
+      <path d="M12 10v4M12 17.5v.01" />
+    </>
+  ),
+  camera: (
+    <>
+      <rect x="2" y="6" width="15" height="12" rx="1" />
+      <path d="M17 9l5-2v10l-5-2" />
+      <circle cx="9.5" cy="12" r="3" />
+    </>
+  ),
+  scan: (
+    <>
+      <rect x="3" y="8" width="18" height="11" rx="1" />
+      <path d="M17 9.5l4-1.6v9.2l-4-1.6" />
+      <path d="M11.6 12.5h.8M12 11.9v1.2" />
+    </>
+  ),
+  reticle: (
+    <>
+      <ellipse cx="12" cy="12" rx="9" ry="6.5" />
+      <path d="M12 3.5v2.4M9 3.5h6" />
+      <path d="M12 18.1v2.4M9 20.5h6" />
+      <path d="M3.5 12h2.4M3.5 9v6" />
+      <path d="M18.1 12h2.4M20.5 9v6" />
+      <path d="M10.5 10v4M12 12h.01" />
+    </>
+  ),
+  crosshair: (
+    <>
+      <circle cx="12" cy="12" r="8.5" />
+      <path d="M12 2.5v4M12 17.5v4M21.5 12h-4M6.5 12h-4" />
+      <circle cx="12" cy="12" r="2.5" />
+    </>
+  ),
+  chevronRight: <path d="M9 6l6 6-6 6" />,
+  cameraX: (
+    <>
+      <rect x="2" y="6" width="15" height="12" rx="1" />
+      <path d="M17 9l5-2v10l-5-2" />
+      <path d="M12 2.5v2M6.5 2l1.5 2.5M9 4.5L14 2" />
+    </>
+  ),
+  download: (
+    <>
+      <path d="M12 3v11M7 10l5 5 5-5" />
+      <path d="M4 19h16" />
+    </>
+  ),
+  plus: (
+    <>
+      <path d="M12 5v14M5 12h14" />
+    </>
+  ),
+  arrowRight: <path d="M5 12h14M13 6l6 6-6 6" />,
+  location: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 8v8M8 12h8" />
+    </>
+  ),
+  navigate: (
+    <>
+      <path d="M12 3l8 16-8-4-8 4 8-16z" />
+      <path d="M12 3v12" />
+    </>
+  ),
+  logout: (
+    <>
+      <path d="M14 4h4a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-4" />
+      <path d="M9 8l-4 4 4 4M5 12h11" />
+    </>
+  ),
+  refresh: (
+    <>
+      <path d="M4 12a8 8 0 0 1 14-5l2 2M20 12a8 8 0 0 1-14 5l-2-2" />
+      <path d="M20 4v5h-5M4 20v-5h5" />
+    </>
+  ),
+  home: (
+    <>
+      <path d="M3 11l9-8 9 8" />
+      <path d="M5 9.5V21h14V9.5" />
+    </>
+  ),
+  table: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="1" />
+      <path d="M3 10h18M3 15h18M9 10v10M15 10v10" />
+    </>
+  ),
+  book: (
+    <>
+      <path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v16H6.5A2.5 2.5 0 0 0 4 21.5V5.5z" />
+      <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+    </>
+  ),
   google: (
     <path
       fill="currentColor"

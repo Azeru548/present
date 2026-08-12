@@ -4,7 +4,7 @@
   justify-content: space-between;
   padding: 0 28px;
   height: 60px;
-  background: rgba(255, 255, 255, 0.86);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid transparent;
@@ -20,8 +20,8 @@
 
 .navScrolled {
   border-bottom-color: var(--line);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
-  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 24px rgba(11, 44, 31, 0.07);
+  background: rgba(255, 255, 255, 0.95);
   height: 56px;
 }
 
@@ -44,7 +44,7 @@
 
 .logoText {
   font-family: var(--font-display), 'Segoe UI', system-ui, sans-serif;
-  font-size: 1.1rem;
+  font-size: 1.12rem;
   font-weight: 600;
   letter-spacing: -0.02em;
   color: var(--ink);
@@ -57,14 +57,29 @@
 }
 
 .greeting {
-  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
   color: var(--ink-2);
-  font-weight: 400;
-  margin-right: 8px;
+  font-weight: 500;
+  margin-right: 4px;
+  padding: 5px 10px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-full);
+  background: var(--surface-2);
 }
 .greeting b {
-  color: var(--ink);
+  font-family: var(--font-mono), var(--font-sans), monospace;
+  font-size: 0.68rem;
   font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--brand);
+  background: var(--positive-soft);
+  border: 1px solid var(--positive-line);
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
 }
 
 .link {
@@ -83,7 +98,7 @@
   right: 12px;
   bottom: 4px;
   height: 1px;
-  background: var(--ink);
+  background: var(--brand);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.25s var(--ease);
@@ -96,11 +111,11 @@
 }
 
 .btn {
-  background: var(--ink);
+  background: var(--brand);
   color: #fff;
-  border: 1px solid var(--ink);
+  border: 1px solid var(--brand);
   padding: 8px 16px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
@@ -114,11 +129,11 @@
     box-shadow 0.2s var(--ease);
 }
 .btn:hover {
-  background: #1e293b;
-  border-color: #1e293b;
+  background: var(--brand-deep);
+  border-color: var(--brand-deep);
   color: #fff;
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(15, 23, 42, 0.18);
+  box-shadow: 0 6px 16px rgba(11, 44, 31, 0.2);
 }
 .btn:active {
   transform: translateY(0) scale(0.98);
@@ -138,7 +153,7 @@
   border: none;
   cursor: pointer;
   padding: 8px;
-  border-radius: 2px;
+  border-radius: var(--radius-sm);
 }
 .bar {
   width: 20px;

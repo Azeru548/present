@@ -21,10 +21,11 @@
 .table th {
   background: var(--surface-2);
   color: var(--ink-2);
-  font-weight: 700;
-  font-size: 0.72rem;
+  font-family: var(--font-mono), var(--font-sans), monospace;
+  font-weight: 600;
+  font-size: 0.7rem;
   text-transform: uppercase;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
 }
 .table td {
   font-size: 0.9rem;
@@ -56,26 +57,26 @@
   border-radius: var(--radius-full);
 }
 .pillYes {
-  background: var(--brand-100);
-  color: var(--brand-700);
+  background: var(--positive-soft);
+  color: var(--positive);
 }
 .pillYes::before {
   content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--brand-500);
+  background: var(--positive);
 }
 .pillNo {
-  background: #fee2e2;
-  color: #b91c1c;
+  background: var(--warning-soft);
+  color: var(--warning);
 }
 .pillNo::before {
   content: '';
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: #ef4444;
+  background: var(--warning);
 }
 
 .muted {

@@ -2,15 +2,6 @@
   padding: 0;
 }
 
-.header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
 .grid {
   display: flex;
   gap: 24px;
@@ -18,99 +9,56 @@
   align-items: flex-start;
 }
 
-.sessionCard {
+.panel {
+  flex: 1;
+  min-width: min(320px, 100%);
+  margin-bottom: 0;
+}
+
+.panel .subtitle {
+  font-size: var(--text-base);
+  font-weight: 700;
+  margin-bottom: 16px;
+}
+
+.sessionList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-height: 480px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.panelHeader {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 15px 18px;
-  background: var(--surface-2);
-  border-radius: var(--radius-sm);
-  margin-bottom: 10px;
-  cursor: pointer;
-  border: 1px solid var(--line);
-  transition: background 0.18s var(--ease), border-color 0.18s var(--ease),
-    transform 0.18s var(--ease), box-shadow 0.2s var(--ease);
-}
-.sessionCard:hover {
-  background: var(--brand-50);
-  border-color: var(--brand-200);
-  transform: translateX(3px);
-  box-shadow: var(--shadow-sm);
-}
-.active {
-  background: var(--brand-50);
-  border-color: var(--brand-500);
-  box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.12);
-}
-.active:hover {
-  border-color: var(--brand-500);
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
 }
 
-.course {
-  display: block;
-  font-size: 0.8rem;
-  color: var(--ink-2);
-  margin-top: 3px;
-  font-weight: 500;
-}
-
-.badgeActive,
-.badgeClosed {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.72rem;
-  padding: 4px 12px;
-  border-radius: var(--radius-full);
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  white-space: nowrap;
-}
-.badgeActive {
-  background: var(--brand-100);
-  color: var(--brand-700);
-}
-.badgeClosed {
-  background: var(--line);
-  color: var(--ink-2);
-}
-.badgeActive::before,
-.badgeClosed::before {
-  content: '';
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-}
-.badgeActive::before {
-  background: var(--brand-500);
-  box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.5);
-  animation: pulseRing 1.8s ease-out infinite;
-}
-.badgeClosed::before {
-  background: var(--ink-3);
-}
-
-.muted {
+.selectHint {
+  padding: 24px 8px;
+  text-align: center;
   color: var(--ink-3);
-  font-style: italic;
+  font-size: 0.95rem;
 }
 
-@keyframes pulseRing {
-  0% {
-    box-shadow: 0 0 0 0 rgba(15, 23, 42, 0.45);
-  }
-  70% {
-    box-shadow: 0 0 0 6px rgba(15, 23, 42, 0);
-  }
-  100% {
-    box-shadow: 0 0 0 0 rgba(15, 23, 42, 0);
-  }
+.selectHintSub {
+  margin-top: 6px;
+  font-size: 0.82rem;
+  color: var(--ink-3);
 }
 
 @media (max-width: 768px) {
   .grid {
     flex-direction: column;
-    gap: 12px;
+    gap: 16px;
+  }
+  .panel {
+    width: 100%;
+    min-width: 0;
   }
 }
