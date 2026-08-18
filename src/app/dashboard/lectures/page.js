@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireRole } from '@/lib/useRequireRole';
 import { getActiveSessions, getStudentAttendanceIds } from '@/lib/firestore';
 import { getCurrentPosition, getDistance } from '@/lib/geo';
 import { friendlyError } from '@/lib/errors';
@@ -11,22 +10,17 @@ import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
 export default function LecturesPage() {
-  const { user, role, userData, loading: authLoading } = useAuth();
+  const { user, userData, ready } = useRequireRole('student');
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [studentPos, setStudentPos] = useState(null);
   const [markedIds, setMarkedIds] = useState(new Set());
   const [error, setError] = useState('');
-  const router = useRouter();
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user || role !== 'student') {
-      router.push('/login/student');
-      return;
-    }
+    if (!ready) return;
     load();
-  }, [user, role, authLoading, userData?.level, userData?.department]);
+  }, [ready, user, userData?.level, userData?.department]);
 
   async function load() {
     try {
@@ -68,7 +62,7 @@ export default function LecturesPage() {
     );
   }
 
-  if (authLoading || loading) return <Loading text="Loading lectures..." />;
+  if (!ready || loading) return <Loading text="Loading lectures..." />;
 
   return (
     <div className="container">

@@ -1,7 +1,7 @@
 'use client';
 import { Fragment, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireRole } from '@/lib/useRequireRole';
 import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore';
 import { getCurrentPosition, isWithinRange } from '@/lib/geo';
 import { authenticateFace, loadModels, probeFrame, stopCamera } from '@/lib/face';
@@ -14,7 +14,7 @@ const verificationSteps = ['Location', 'Identity', 'Recorded'];
 
 export default function SessionAttendance() {
   const { id } = useParams();
-  const { user, role, userData, loading: authLoading } = useAuth();
+  const { user, userData, ready } = useRequireRole('student');
   const videoRef = useRef(null);
   const streamRef = useRef(null);
   const [session, setSession] = useState(null);
@@ -29,13 +29,9 @@ export default function SessionAttendance() {
   const router = useRouter();
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user || role !== 'student') {
-      router.push('/login/student');
-      return;
-    }
+    if (!ready) return;
     loadSession();
-  }, [id, user, role, authLoading]);
+  }, [id, user, userData, ready]);
 
   async function loadSession() {
     try {
@@ -221,7 +217,7 @@ export default function SessionAttendance() {
     }
   }
 
-  if (authLoading) return <Loading />;
+  if (!ready) return <Loading />;
 
   const stepIndex =
     step === 'geo' ? 1 : step === 'face' ? 2 : step === 'done' ? 3 : 0;

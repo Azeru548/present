@@ -1,7 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireRole } from '@/lib/useRequireRole';
 import { createSession } from '@/lib/firestore';
 import { getCurrentPosition } from '@/lib/geo';
 import { friendlyError } from '@/lib/errors';
@@ -12,7 +12,7 @@ import PageHeader from '@/components/PageHeader';
 import styles from './page.module.css';
 
 export default function CreateSession() {
-  const { user, role, loading: authLoading } = useAuth();
+  const { user, ready } = useRequireRole('lecturer');
   const [title, setTitle] = useState('');
   const [course, setCourse] = useState('');
   const [radius, setRadius] = useState(50);
@@ -25,11 +25,7 @@ export default function CreateSession() {
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
-  if (authLoading) return <Loading />;
-  if (!user || role !== 'lecturer') {
-    router.push('/login/lecturer');
-    return null;
-  }
+  if (!ready) return <Loading />;
 
   async function handleSubmit(e) {
     e.preventDefault();

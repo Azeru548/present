@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
 import { friendlyError } from '@/lib/errors';
 import Icon from '@/components/Icon';
 
@@ -12,13 +13,15 @@ export default function LecturerRegister() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { refreshUserData } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     try {
       await registerWithRole(email, password, name, 'lecturer');
-      router.push('/dashboard/lecturer');
+      await refreshUserData();
+      router.replace('/dashboard/lecturer');
     } catch (err) {
       setError(friendlyError(err, 'Could not create your account. Please try again.'));
     }

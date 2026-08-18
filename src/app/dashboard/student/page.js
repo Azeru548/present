@@ -1,18 +1,16 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
 import { updateUserProfile } from '@/lib/auth';
+import { useRequireRole } from '@/lib/useRequireRole';
 import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 import FaceEnrollment from '@/components/FaceEnrollment';
 import Icon from '@/components/Icon';
-import styles from './page.module.css';
 
 export default function StudentDashboard() {
-  const { user, role, userData, refreshUserData, loading: authLoading } = useAuth();
+  const { user, userData, refreshUserData, ready } = useRequireRole('student');
   const [enrolled, setEnrolled] = useState(false);
   const [showEnroll, setShowEnroll] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
@@ -20,7 +18,6 @@ export default function StudentDashboard() {
   const [department, setDepartment] = useState('');
   const [profileSaving, setProfileSaving] = useState(false);
   const [profileMsg, setProfileMsg] = useState('');
-  const router = useRouter();
 
   useEffect(() => {
     setEnrolled(userData?.faceEnrolled === true);
@@ -31,16 +28,7 @@ export default function StudentDashboard() {
     setDepartment(userData?.department || '');
   }, [userData?.level, userData?.department]);
 
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user || role !== 'student') {
-      router.push('/login/student');
-      return;
-    }
-  }, [user, role, authLoading, router]);
-
-  if (authLoading) return <Loading />;
-  if (!user || role !== 'student') return <Loading />;
+  if (!ready) return <Loading />;
 
   const missingProfile = !userData?.level || !userData?.department;
 

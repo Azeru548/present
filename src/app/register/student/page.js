@@ -3,6 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { registerWithRole } from '@/lib/auth';
+import { useAuth } from '@/context/AuthContext';
 import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import FaceEnrollment from '@/components/FaceEnrollment';
@@ -18,6 +19,7 @@ export default function StudentRegister() {
   const [department, setDepartment] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
+  const { refreshUserData } = useAuth();
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -27,6 +29,7 @@ export default function StudentRegister() {
         level,
         department,
       });
+      await refreshUserData();
       setUserId(user.uid);
       setStep('enroll');
     } catch (err) {

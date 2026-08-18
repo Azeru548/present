@@ -60,6 +60,21 @@ export async function getUserData(uid) {
   return snap.exists() ? snap.data() : null;
 }
 
+// Signup writes the Auth user first, then the Firestore profile. The auth
+// listener can fire in that gap — retry so we don't treat a new account as
+// having no role (which used to bounce login <-> dashboard forever).
+export async function getUserDataWithRetry(uid, { attempts = 10, delayMs = 200 } = {}) {
+  let last = null;
+  for (let i = 0; i < attempts; i += 1) {
+    last = await getUserData(uid);
+    if (last?.role) return last;
+    if (i < attempts - 1) {
+      await new Promise((resolve) => setTimeout(resolve, delayMs));
+    }
+  }
+  return last;
+}
+
 export async function updateUserProfile(uid, data) {
   await updateDoc(doc(db, 'users', uid), data);
 }

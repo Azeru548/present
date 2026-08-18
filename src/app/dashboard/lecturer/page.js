@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireRole } from '@/lib/useRequireRole';
 import { getLecturerSessions, closeSession } from '@/lib/firestore';
 import AttendanceTable from '@/components/AttendanceTable';
 import Loading from '@/components/Loading';
@@ -14,22 +13,17 @@ import Icon from '@/components/Icon';
 import styles from './page.module.css';
 
 export default function LecturerDashboard() {
-  const { user, role, loading: authLoading } = useAuth();
+  const { user, ready } = useRequireRole('lecturer');
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedSession, setSelectedSession] = useState(null);
   const [attendance, setAttendance] = useState([]);
   const [attLoading, setAttLoading] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user || role !== 'lecturer') {
-      router.push('/login/lecturer');
-      return;
-    }
+    if (!ready) return;
     loadSessions();
-  }, [user, role, authLoading]);
+  }, [ready, user]);
 
   async function loadSessions() {
     setLoading(true);
@@ -88,7 +82,7 @@ export default function LecturerDashboard() {
     URL.revokeObjectURL(url);
   }
 
-  if (authLoading || loading) return <Loading />;
+  if (!ready || loading) return <Loading />;
 
   return (
     <div className="container">

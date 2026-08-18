@@ -2,7 +2,7 @@
 import { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
-import { getUserRole, getUserData } from '@/lib/auth';
+import { getUserData, getUserDataWithRetry } from '@/lib/auth';
 
 const AuthContext = createContext(null);
 
@@ -16,30 +16,44 @@ export function AuthProvider({ children }) {
     import('@/lib/face')
       .then(({ loadModels }) => loadModels())
       .catch(() => {});
-    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
-      setUser(firebaseUser);
-      if (firebaseUser) {
-        const [r, d] = await Promise.all([
-          getUserRole(firebaseUser.uid),
-          getUserData(firebaseUser.uid),
-        ]);
-        setRole(r);
-        setUserData(d);
-      } else {
-        setRole(null);
-        setUserData(null);
-      }
+
+    if (!auth) {
       setLoading(false);
+      return undefined;
+    }
+
+    const unsub = onAuthStateChanged(auth, async (firebaseUser) => {
+      // Stay in the loading state until the Firestore profile is resolved.
+      // Otherwise pages see `user` with `role === null` and bounce
+      // login <-> dashboard in a loop.
+      setLoading(true);
+      try {
+        if (!firebaseUser) {
+          setUser(null);
+          setRole(null);
+          setUserData(null);
+          return;
+        }
+        setUser(firebaseUser);
+        const data = await getUserDataWithRetry(firebaseUser.uid);
+        if (data?.role) {
+          setUserData(data);
+          setRole(data.role);
+        }
+        // If the profile is still missing, do not overwrite a role that
+        // register/login just wrote via refreshUserData.
+      } finally {
+        setLoading(false);
+      }
     });
     return unsub;
   }, []);
 
   const refreshUserData = useCallback(async () => {
-    if (auth.currentUser) {
-      const d = await getUserData(auth.currentUser.uid);
-      setUserData(d);
-      setRole(d?.role || null);
-    }
+    if (!auth?.currentUser) return;
+    const d = await getUserDataWithRetry(auth.currentUser.uid);
+    setUserData(d);
+    setRole(d?.role || null);
   }, []);
 
   return (

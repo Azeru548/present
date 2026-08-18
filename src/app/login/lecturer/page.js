@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import { login, signInWithGoogle, getUserData } from '@/lib/auth';
+import { dashboardPath } from '@/lib/routes';
 import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
@@ -16,25 +17,29 @@ export default function LecturerLogin() {
   const { user, role, loading } = useAuth();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.push('/dashboard/lecturer');
-    }
+    if (loading || !user || !role) return;
+    router.replace(dashboardPath(role));
   }, [user, role, loading, router]);
 
   if (loading) return <Loading text="Checking session..." />;
-  if (user) return <Loading text="Redirecting..." />;
+  if (user && role) return <Loading text="Redirecting..." />;
 
   async function handleSubmit(e) {
     e.preventDefault();
     setError('');
     try {
-      const user = await login(email, password);
-      const data = await getUserData(user.uid);
-      if (data?.role !== 'lecturer') {
-        setError('This account is not registered as a lecturer.');
+      const signedIn = await login(email, password);
+      const data = await getUserData(signedIn.uid);
+      if (!data?.role) {
+        setError('Could not load your profile. Please try again.');
         return;
       }
-      router.push('/dashboard/lecturer');
+      if (data.role !== 'lecturer') {
+        setError('This account is not registered as a lecturer.');
+        router.replace(dashboardPath(data.role));
+        return;
+      }
+      router.replace('/dashboard/lecturer');
     } catch (err) {
       setError(friendlyError(err, 'Unable to sign in. Please try again.'));
     }
@@ -84,8 +89,9 @@ export default function LecturerLogin() {
         onClick={async () => {
           try {
             setError('');
-            await signInWithGoogle('lecturer');
-            router.push('/dashboard/lecturer');
+            const signedIn = await signInWithGoogle('lecturer');
+            const data = await getUserData(signedIn.uid);
+            router.replace(dashboardPath(data?.role || 'lecturer'));
           } catch (err) {
             setError(friendlyError(err, 'Could not sign in with Google. Please try again.'));
           }

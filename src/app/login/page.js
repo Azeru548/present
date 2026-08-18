@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
+import { dashboardPath } from '@/lib/routes';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 
@@ -11,13 +12,12 @@ export default function LoginChooser() {
   const router = useRouter();
 
   useEffect(() => {
-    if (!loading && user) {
-      router.push(role === 'lecturer' ? '/dashboard/lecturer' : '/dashboard/student');
-    }
+    if (loading || !user || !role) return;
+    router.replace(dashboardPath(role));
   }, [user, role, loading, router]);
 
   if (loading) return <Loading text="Checking session..." />;
-  if (user) return <Loading text="Redirecting..." />;
+  if (user && role) return <Loading text="Redirecting..." />;
 
   return (
     <div className="container">

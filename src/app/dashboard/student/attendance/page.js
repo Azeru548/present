@@ -1,8 +1,7 @@
 'use client';
 import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { useAuth } from '@/context/AuthContext';
+import { useRequireRole } from '@/lib/useRequireRole';
 import { getAllSessions, getStudentAttendanceIds } from '@/lib/firestore';
 import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
@@ -36,20 +35,15 @@ const STATUS = {
 };
 
 export default function StudentAttendanceHistory() {
-  const { user, role, userData, loading: authLoading } = useAuth();
+  const { user, userData, ready } = useRequireRole('student');
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const router = useRouter();
 
   useEffect(() => {
-    if (authLoading) return;
-    if (!user || role !== 'student') {
-      router.push('/login/student');
-      return;
-    }
+    if (!ready) return;
     load();
-  }, [user, role, authLoading, userData?.level, userData?.department]);
+  }, [ready, user, userData?.level, userData?.department]);
 
   async function load() {
     try {
@@ -71,7 +65,7 @@ export default function StudentAttendanceHistory() {
     }
   }
 
-  if (authLoading || loading) return <Loading text="Loading history..." />;
+  if (!ready || loading) return <Loading text="Loading history..." />;
 
   const counts = sessions.reduce(
     (acc, s) => {
