@@ -2,35 +2,217 @@ rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isSelf(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function userPath() {
+      return /databases/$(database)/documents/users/$(request.auth.uid);
+    }
+
+    function sessionPath(sessionId) {
+      return /databases/$(database)/documents/sessions/$(sessionId);
+    }
+
+    function hasRole(role) {
+      return isSignedIn()
+        && exists(userPath())
+        && get(userPath()).data.role == role;
+    }
+
+    function isLecturer() {
+      return hasRole('lecturer');
+    }
+
+    function isStudent() {
+      return hasRole('student');
+    }
+
+    // --------------------------------------------------------------------------
+    // users/{uid}
+    // Created at register / first Google sign-in.
+    // Students later update level, department, faceEnrolled.
+    // Lecturers read a student's name/email when viewing a session roster.
+    // --------------------------------------------------------------------------
     match /users/{userId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null && request.auth.uid == userId;
-      allow write: if request.auth != null && request.auth.uid == userId;
+      allow get: if isSelf(userId) || isLecturer();
+      allow list: if false;
+
+      allow create: if isSelf(userId)
+        && request.resource.data.keys().hasOnly([
+          'name', 'email', 'role', 'createdAt', 'faceEnrolled',
+          'level', 'department'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.email is string
+        && request.resource.data.email.size() > 0
+        && request.resource.data.email.size() <= 320
+        && request.resource.data.role in ['student', 'lecturer']
+        && request.resource.data.createdAt is string
+        && request.resource.data.faceEnrolled == false
+        && (!('level' in request.resource.data)
+            || request.resource.data.level == null
+            || request.resource.data.level is string)
+        && (!('department' in request.resource.data)
+            || request.resource.data.department == null
+            || request.resource.data.department is string);
+
+      // Role and email are frozen after create — a student must not become a lecturer.
+      allow update: if isSelf(userId)
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['name', 'level', 'department', 'faceEnrolled'])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 120
+        && request.resource.data.faceEnrolled is bool
+        && (resource.data.faceEnrolled == false
+            || request.resource.data.faceEnrolled == true);
+
+      allow delete: if false;
     }
 
+    // --------------------------------------------------------------------------
+    // sessions/{sessionId}
+    // Lecturers create sessions (GPS anchor + radius + window).
+    // Signed-in students list live / past sessions for their dashboard.
+    // Only the owning lecturer can close the attendance window.
+    // --------------------------------------------------------------------------
     match /sessions/{sessionId} {
-      allow read: if request.auth != null;
-      allow create: if request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lecturer';
-      allow update: if request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lecturer'
-        && resource.data.lecturerId == request.auth.uid;
-      allow delete: if request.auth != null
-        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'lecturer'
+      allow read: if isSignedIn();
+
+      allow create: if isLecturer()
+        && request.resource.data.keys().hasOnly([
+          'title', 'course', 'lecturerId', 'level', 'department',
+          'locationNote', 'location', 'durationMinutes', 'endTime',
+          'isActive', 'createdAt'
+        ])
+        && request.resource.data.lecturerId == request.auth.uid
+        && request.resource.data.isActive == true
+        && request.resource.data.title is string
+        && request.resource.data.title.size() > 0
+        && request.resource.data.title.size() <= 200
+        && request.resource.data.course is string
+        && request.resource.data.course.size() > 0
+        && request.resource.data.course.size() <= 120
+        && request.resource.data.location is map
+        && request.resource.data.location.keys().hasOnly(['lat', 'lng', 'radius', 'accuracy'])
+        && request.resource.data.location.lat is number
+        && request.resource.data.location.lng is number
+        && request.resource.data.location.radius is number
+        && (!('accuracy' in request.resource.data.location)
+            || request.resource.data.location.accuracy is number)
+        && request.resource.data.location.radius >= 10
+        && request.resource.data.location.radius <= 10000
+        && request.resource.data.durationMinutes is number
+        && request.resource.data.durationMinutes >= 5
+        && request.resource.data.durationMinutes <= 1440
+        && request.resource.data.endTime is string
+        && request.resource.data.createdAt is timestamp
+        && (!('level' in request.resource.data)
+            || request.resource.data.level == null
+            || request.resource.data.level is string)
+        && (!('department' in request.resource.data)
+            || request.resource.data.department == null
+            || request.resource.data.department is string)
+        && (!('locationNote' in request.resource.data)
+            || request.resource.data.locationNote == null
+            || (request.resource.data.locationNote is string
+                && request.resource.data.locationNote.size() <= 200));
+
+      allow update: if isLecturer()
+        && resource.data.lecturerId == request.auth.uid
+        && request.resource.data.diff(resource.data).affectedKeys()
+            .hasOnly(['isActive', 'closedAt'])
+        && request.resource.data.isActive == false
+        && request.resource.data.closedAt is timestamp;
+
+      allow delete: if isLecturer()
         && resource.data.lecturerId == request.auth.uid;
     }
 
+    // --------------------------------------------------------------------------
+    // attendance/{sessionId}_{studentId}
+    // Students create their own mark once while the session is active.
+    // Students query their own rows; lecturers query a session roster.
+    // get() must work when the doc does not exist yet (hasMarkedAttendance).
+    // --------------------------------------------------------------------------
     match /attendance/{attendanceId} {
-      allow read: if request.auth != null;
-      // One attendance per student per session
-      allow create: if request.auth != null
+      function isOwnAttendanceId() {
+        return attendanceId.size() > request.auth.uid.size() + 1
+          && attendanceId.matches('.*_' + request.auth.uid);
+      }
+
+      function activeSession(sessionId) {
+        return exists(sessionPath(sessionId))
+          && get(sessionPath(sessionId)).data.isActive == true;
+      }
+
+      function studentEligible(sessionId) {
+        let s = get(sessionPath(sessionId)).data;
+        let u = get(userPath()).data;
+        return (!('level' in s) || s.level == null || s.level == u.level)
+          && (!('department' in s) || s.department == null || s.department == u.department);
+      }
+
+      allow get: if isSignedIn() && (isOwnAttendanceId() || isLecturer());
+
+      allow list: if isSignedIn() && (
+        resource.data.studentId == request.auth.uid || isLecturer()
+      );
+
+      allow create: if isStudent()
+        && request.resource.data.keys().hasOnly([
+          'sessionId', 'studentId', 'geoVerified', 'faceVerified', 'timestamp'
+        ])
         && request.resource.data.studentId == request.auth.uid
-        && !exists(/databases/$(database)/documents/attendance/$(request.resource.data.sessionId)_$(request.auth.uid));
+        && attendanceId == request.resource.data.sessionId + '_' + request.auth.uid
+        && request.resource.data.sessionId is string
+        && request.resource.data.geoVerified == true
+        && request.resource.data.faceVerified == true
+        && request.resource.data.timestamp is timestamp
+        && activeSession(request.resource.data.sessionId)
+        && studentEligible(request.resource.data.sessionId);
+
+      allow update, delete: if false;
     }
 
+    // --------------------------------------------------------------------------
+    // face_descriptors/{uid}
+    // 128-d embeddings for on-device matching. Never readable by anyone else.
+    // --------------------------------------------------------------------------
     match /face_descriptors/{studentId} {
-      allow read: if request.auth != null && request.auth.uid == studentId;
-      allow write: if request.auth != null && request.auth.uid == studentId;
+      allow get: if isSelf(studentId);
+      allow list: if false;
+
+      allow create: if isSelf(studentId)
+        && validFacePayload(true);
+
+      allow update: if isSelf(studentId)
+        && validFacePayload(false);
+
+      allow delete: if false;
+
+      function validFacePayload(isCreate) {
+        let d = request.resource.data;
+        return d.keys().hasOnly(['descriptors', 'descriptor', 'updatedAt', 'createdAt'])
+          && d.descriptor is list
+          && d.descriptor.size() == 128
+          && d.descriptors is map
+          && d.updatedAt is string
+          && (isCreate
+                ? d.createdAt is string
+                : d.createdAt == resource.data.createdAt);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
     }
   }
 }

@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireRole } from '@/lib/useRequireRole';
 import { createSession } from '@/lib/firestore';
-import { getCurrentPosition } from '@/lib/geo';
+import { getCurrentPosition, assertPreciseLocation } from '@/lib/geo';
 import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
@@ -23,6 +23,7 @@ export default function CreateSession() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
+  const [geoHint, setGeoHint] = useState('');
   const router = useRouter();
 
   if (!ready) return <Loading />;
@@ -34,7 +35,15 @@ export default function CreateSession() {
     setSubmitting(true);
 
     try {
-      const pos = await getCurrentPosition();
+      setGeoHint('Getting a precise location — keep this screen open…');
+      const pos = assertPreciseLocation(
+        await getCurrentPosition({
+          onUpdate: (sample) =>
+            setGeoHint(`Locking location… ±${Math.round(sample.accuracy)}m`),
+        }),
+        Math.min(Number(radius) || 50, 80)
+      );
+      setGeoHint(`Class pin locked to ±${Math.round(pos.accuracy)}m`);
       const endTime = new Date(Date.now() + duration * 60000).toISOString();
 
       await createSession({
@@ -44,7 +53,12 @@ export default function CreateSession() {
         level: level || null,
         department: department || null,
         locationNote: locationNote.trim() || null,
-        location: { lat: pos.lat, lng: pos.lng, radius: Number(radius) },
+        location: {
+          lat: pos.lat,
+          lng: pos.lng,
+          radius: Number(radius),
+          accuracy: pos.accuracy,
+        },
         durationMinutes: Number(duration),
         endTime,
       });
@@ -52,6 +66,7 @@ export default function CreateSession() {
       setSuccess('Session created! Redirecting...');
       setTimeout(() => router.push('/dashboard/lecturer'), 1500);
     } catch (err) {
+      setGeoHint('');
       setError(
         friendlyError(
           err,
@@ -67,7 +82,7 @@ export default function CreateSession() {
     <div className="container">
       <PageHeader
         title="Create Lecture Session"
-        sub="Your current location is captured as the classroom anchor."
+        sub="A precise GPS lock is captured as the classroom pin. Use the installed app and Precise Location — a browser guess will be rejected."
       />
       <div className={`card animate-pop ${styles.formCard}`}>
         <form onSubmit={handleSubmit}>
@@ -102,7 +117,9 @@ export default function CreateSession() {
                 min={10}
                 required
               />
-              <p className={styles.hint}>Default 50 m around the class.</p>
+              <p className={styles.hint}>
+                Default 50 m. The pin must lock within this radius (±80 m max).
+              </p>
             </div>
             <div className="form-group">
               <label>Attendance Duration (minutes)</label>
@@ -152,6 +169,7 @@ export default function CreateSession() {
             </div>
           </div>
 
+          {geoHint && !error && <p className={styles.hint}>{geoHint}</p>}
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
 
@@ -162,7 +180,7 @@ export default function CreateSession() {
               disabled={submitting}
             >
               <Icon name="plus" size={16} />
-              {submitting ? 'Creating...' : 'Create Session'}
+              {submitting ? 'Locating…' : 'Create Session'}
             </button>
             {locationNote && (
               <p className={styles.anchorNote}>

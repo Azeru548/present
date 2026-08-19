@@ -23,12 +23,9 @@ export default function LecturesPage() {
   }, [ready, user, userData?.level, userData?.department]);
 
   async function load() {
-    try {
-      const pos = await getCurrentPosition();
-      setStudentPos(pos);
-    } catch {
-      // location denied — still show sessions
-    }
+    const geoPromise = getCurrentPosition({ allowCache: true })
+      .then((pos) => setStudentPos(pos))
+      .catch(() => {});
     try {
       const [data, marked] = await Promise.all([
         getActiveSessions(),
@@ -41,6 +38,7 @@ export default function LecturesPage() {
     } finally {
       setLoading(false);
     }
+    await geoPromise;
   }
 
   function filterSessions(list) {
@@ -157,7 +155,9 @@ export default function LecturesPage() {
                     }
                   >
                     {dist !== null
-                      ? `${Math.round(dist)}m away`
+                      ? studentPos?.accuracy > 80
+                        ? `About ${Math.round(dist)}m (imprecise)`
+                        : `${Math.round(dist)}m away`
                       : 'Location unavailable'}
                   </span>
                 </div>

@@ -3,7 +3,7 @@ import { Fragment, useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { useRequireRole } from '@/lib/useRequireRole';
 import { getSession, markAttendance, hasMarkedAttendance } from '@/lib/firestore';
-import { getCurrentPosition, isWithinRange } from '@/lib/geo';
+import { getCurrentPosition, isWithinRange, assertPreciseLocation } from '@/lib/geo';
 import { authenticateFace, loadModels, probeFrame, stopCamera } from '@/lib/face';
 import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
@@ -26,6 +26,8 @@ export default function SessionAttendance() {
   const [modelProgress, setModelProgress] = useState(null); // null = not loading, 0-100 while loading
   const [scanStatus, setScanStatus] = useState('');
   const [error, setError] = useState('');
+  const [geoChecking, setGeoChecking] = useState(false);
+  const [geoHint, setGeoHint] = useState('');
   const router = useRouter();
 
   useEffect(() => {
@@ -73,17 +75,30 @@ export default function SessionAttendance() {
 
   async function handleGeoCheck() {
     setError('');
+    setGeoChecking(true);
+    setGeoHint('Getting a precise location…');
     try {
-      const pos = await getCurrentPosition();
+      const pos = assertPreciseLocation(
+        await getCurrentPosition({
+          onUpdate: (sample) =>
+            setGeoHint(`Locking location… ±${Math.round(sample.accuracy)}m`),
+        }),
+        Math.min((session.location?.radius || 50) + 30, 80)
+      );
       const result = isWithinRange(pos, session.location, session.location.radius);
       setGeoResult(result);
       if (result.within) {
         setStep('face');
       } else {
-        setError(`You are ${result.distance}m away. Must be within ${session.location.radius}m of the class.`);
+        setError(
+          `You are ${result.distance}m from the class pin (±${result.accuracy}m). Must be within ${session.location.radius}m.`
+        );
       }
     } catch (err) {
-      setError('Could not get your location. Please enable GPS.');
+      setError(friendlyError(err, 'Could not get your location. Please enable GPS and Precise Location.'));
+    } finally {
+      setGeoChecking(false);
+      setGeoHint('');
     }
   }
 
@@ -357,14 +372,18 @@ export default function SessionAttendance() {
                   </p>
                 </div>
               </div>
+              {geoHint && !error && (
+                <p className={styles.verifyText}>{geoHint}</p>
+              )}
               {error && <p className="error">{error}</p>}
               <button
                 className="btn-primary"
                 style={{ width: '100%' }}
                 onClick={handleGeoCheck}
+                disabled={geoChecking}
               >
                 <Icon name="navigate" size={16} />
-                Verify Location
+                {geoChecking ? 'Locating…' : 'Verify Location'}
               </button>
             </>
           )}
