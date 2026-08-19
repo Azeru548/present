@@ -101,12 +101,14 @@ service cloud.firestore {
         && request.resource.data.course.size() > 0
         && request.resource.data.course.size() <= 120
         && request.resource.data.location is map
-        && request.resource.data.location.keys().hasOnly(['lat', 'lng', 'radius', 'accuracy'])
+        && request.resource.data.location.keys().hasOnly(['lat', 'lng', 'radius', 'accuracy', 'source'])
         && request.resource.data.location.lat is number
         && request.resource.data.location.lng is number
         && request.resource.data.location.radius is number
         && (!('accuracy' in request.resource.data.location)
             || request.resource.data.location.accuracy is number)
+        && (!('source' in request.resource.data.location)
+            || request.resource.data.location.source in ['map', 'gps'])
         && request.resource.data.location.radius >= 10
         && request.resource.data.location.radius <= 10000
         && request.resource.data.durationMinutes is number

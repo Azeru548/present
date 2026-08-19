@@ -3,12 +3,12 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useRequireRole } from '@/lib/useRequireRole';
 import { createSession } from '@/lib/firestore';
-import { getCurrentPosition, assertPreciseLocation } from '@/lib/geo';
 import { friendlyError } from '@/lib/errors';
 import { LEVELS, DEPARTMENTS } from '@/lib/constants';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
 import PageHeader from '@/components/PageHeader';
+import ClassLocationPicker from '@/components/ClassLocationPicker';
 import styles from './page.module.css';
 
 export default function CreateSession() {
@@ -23,7 +23,7 @@ export default function CreateSession() {
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [geoHint, setGeoHint] = useState('');
+  const [pin, setPin] = useState(null);
   const router = useRouter();
 
   if (!ready) return <Loading />;
@@ -35,15 +35,14 @@ export default function CreateSession() {
     setSubmitting(true);
 
     try {
-      setGeoHint('Getting a precise location — keep this screen open…');
-      const pos = assertPreciseLocation(
-        await getCurrentPosition({
-          onUpdate: (sample) =>
-            setGeoHint(`Locking location… ±${Math.round(sample.accuracy)}m`),
-        }),
-        Math.min(Number(radius) || 50, 80)
-      );
-      setGeoHint(`Class pin locked to ±${Math.round(pos.accuracy)}m`);
+      if (!pin?.lat || !pin?.lng) {
+        throw new Error('Place the classroom pin on the map first.');
+      }
+      if (!pin.confirmed) {
+        throw new Error(
+          'Confirm the pin is on the classroom before creating the session.'
+        );
+      }
       const endTime = new Date(Date.now() + duration * 60000).toISOString();
 
       await createSession({
@@ -54,10 +53,10 @@ export default function CreateSession() {
         department: department || null,
         locationNote: locationNote.trim() || null,
         location: {
-          lat: pos.lat,
-          lng: pos.lng,
+          lat: pin.lat,
+          lng: pin.lng,
           radius: Number(radius),
-          accuracy: pos.accuracy,
+          source: 'map',
         },
         durationMinutes: Number(duration),
         endTime,
@@ -66,11 +65,10 @@ export default function CreateSession() {
       setSuccess('Session created! Redirecting...');
       setTimeout(() => router.push('/dashboard/lecturer'), 1500);
     } catch (err) {
-      setGeoHint('');
       setError(
         friendlyError(
           err,
-          'Could not create the session. Check your location permission and connection, then try again.'
+          'Could not create the session. Check the pin, your connection, and try again.'
         )
       );
     } finally {
@@ -82,7 +80,7 @@ export default function CreateSession() {
     <div className="container">
       <PageHeader
         title="Create Lecture Session"
-        sub="A precise GPS lock is captured as the classroom pin. Use the installed app and Precise Location — a browser guess will be rejected."
+        sub="Drop the pin on the real classroom. Device GPS is only a hint — you confirm the place."
       />
       <div className={`card animate-pop ${styles.formCard}`}>
         <form onSubmit={handleSubmit}>
@@ -118,7 +116,7 @@ export default function CreateSession() {
                 required
               />
               <p className={styles.hint}>
-                Default 50 m. The pin must lock within this radius (±80 m max).
+                Default 50 m around the pin you place on the map.
               </p>
             </div>
             <div className="form-group">
@@ -132,6 +130,15 @@ export default function CreateSession() {
               />
               <p className={styles.hint}>Window is auto-closed afterwards.</p>
             </div>
+          </div>
+
+          <div className="form-group">
+            <label>Classroom pin</label>
+            <ClassLocationPicker
+              radius={Number(radius) || 50}
+              value={pin}
+              onChange={setPin}
+            />
           </div>
 
           <div className="form-group">
@@ -169,7 +176,6 @@ export default function CreateSession() {
             </div>
           </div>
 
-          {geoHint && !error && <p className={styles.hint}>{geoHint}</p>}
           {error && <p className="error">{error}</p>}
           {success && <p className="success">{success}</p>}
 
@@ -180,7 +186,7 @@ export default function CreateSession() {
               disabled={submitting}
             >
               <Icon name="plus" size={16} />
-              {submitting ? 'Locating…' : 'Create Session'}
+              {submitting ? 'Creating...' : 'Create Session'}
             </button>
             {locationNote && (
               <p className={styles.anchorNote}>

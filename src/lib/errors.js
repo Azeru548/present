@@ -47,6 +47,8 @@ export function friendlyError(err, fallback = 'Something went wrong. Please try 
     lower.includes('location') ||
     lower.includes('gps') ||
     lower.includes('precise') ||
+    lower.includes('classroom pin') ||
+    lower.includes('class pin') ||
     lower.includes('notallowederror') ||
     lower.includes('notfounderror') ||
     lower.includes('notreadableerror')

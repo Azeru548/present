@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRequireRole } from '@/lib/useRequireRole';
 import { getActiveSessions, getStudentAttendanceIds } from '@/lib/firestore';
-import { getCurrentPosition, getDistance } from '@/lib/geo';
+import { getCurrentPosition, proximityLabel } from '@/lib/geo';
 import { friendlyError } from '@/lib/errors';
 import Loading from '@/components/Loading';
 import Icon from '@/components/Icon';
@@ -51,13 +51,7 @@ export default function LecturesPage() {
   }
 
   function distanceTo(session) {
-    if (!studentPos || !session.location) return null;
-    return getDistance(
-      studentPos.lat,
-      studentPos.lng,
-      session.location.lat,
-      session.location.lng
-    );
+    return proximityLabel(studentPos, session);
   }
 
   if (!ready || loading) return <Loading text="Loading lectures..." />;
@@ -149,16 +143,14 @@ export default function LecturesPage() {
                   )}
                   <span
                     className={
-                      dist !== null
-                        ? styles.distance
-                        : styles.distanceUnavailable
+                      dist.key === 'unknown'
+                        ? styles.distanceUnavailable
+                        : dist.key === 'far'
+                          ? styles.distanceFar
+                          : styles.distance
                     }
                   >
-                    {dist !== null
-                      ? studentPos?.accuracy > 80
-                        ? `About ${Math.round(dist)}m (imprecise)`
-                        : `${Math.round(dist)}m away`
-                      : 'Location unavailable'}
+                    {dist.text}
                   </span>
                 </div>
               </Link>

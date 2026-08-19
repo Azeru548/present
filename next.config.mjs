@@ -1,5 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  transpilePackages: ['leaflet'],
   webpack(config) {
     config.ignoreWarnings = [
       ...(config.ignoreWarnings || []),
